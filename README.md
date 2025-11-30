@@ -123,9 +123,4 @@ Aplikasi mendukung import JSON lokal dengan format:
     "link": "https://alamat-komik.com/chapter-50"
   }
 ]
-
-📬 Kontribusi
-
-Pull Request dipersilakan.
-Untuk perbaikan bug atau penambahan fitur, silakan buat issue.
 ```

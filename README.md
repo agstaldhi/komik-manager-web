@@ -56,6 +56,7 @@ Roadmap ke depan:
 
 ## 📂 Struktur Project (Ringkas)
 
+```
 src/
 ├── components/
 │ ├── Navbar.jsx
@@ -75,13 +76,16 @@ src/
 ├── firebaseService.js
 ├── App.jsx
 └── main.jsx
+```
 
 ---
 
 ## 🚀 Cara Menjalankan di Local
 
+```
 npm install
 npm run dev
+```
 
 ---
 
@@ -89,7 +93,9 @@ npm run dev
 
 ### Build:
 
+```
 npm run build
+```
 
 ### Deploy:
 

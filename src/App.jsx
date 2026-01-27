@@ -9,8 +9,12 @@ import { Home } from "./pages/Home";
 import { List } from "./pages/List";
 import { AddEdit } from "./pages/AddEdit";
 import { useTheme } from "./context/ThemeContext";
+import { useAuth } from "./context/AuthContext";
+import { Login } from "./pages/Login";
+import { AuthProvider } from "./context/AuthContext";
 
 const AppContent = () => {
+  const { user } = useAuth();
   const { darkMode } = useTheme();
   const { comics, loading, addComic, updateComic, deleteComic, bulkUpload } =
     useComics();
@@ -19,6 +23,10 @@ const AppContent = () => {
   const [editingComic, setEditingComic] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
   const [notification, setNotification] = useState(null);
+
+  if (!user) {
+    return <Login />;
+  }
 
   // Update HTML class untuk background color
   useEffect(() => {
@@ -178,9 +186,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

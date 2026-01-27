@@ -166,7 +166,6 @@ export const Login = () => {
           >
             <li>• View-only access</li>
             <li>• Cannot add, edit, or delete comics</li>
-            <li>• NSFW content hidden</li>
           </ul>
         </div>
       </motion.div>

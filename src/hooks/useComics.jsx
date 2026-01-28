@@ -8,17 +8,23 @@ import {
 } from "../firebase/firebaseService";
 
 export const useComics = (showNSFW = false) => {
-  const [comics, setComics] = useState([]);
+  const [allComics, setAllComics] = useState([]); // ⬅️ Store ALL comics
+  const [comics, setComics] = useState([]); // ⬅️ Filtered comics
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Load comics dengan filter NSFW
+  // ⬇️ Load ALL comics from Firestore (1x only)
   const loadComics = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getAllComics(showNSFW);
-      setComics(data);
+      const data = await getAllComics(); // No showNSFW parameter
+      setAllComics(data); // Store all
+
+      // Filter based on showNSFW
+      const filtered = showNSFW ? data : data.filter((c) => !c.isNSFW);
+
+      setComics(filtered);
     } catch (err) {
       setError("Gagal memuat data dari Firestore");
       console.error(err);
@@ -27,12 +33,23 @@ export const useComics = (showNSFW = false) => {
     }
   };
 
+  // ⬇️ Filter comics when showNSFW changes (client-side, instant)
+  useEffect(() => {
+    if (allComics.length > 0) {
+      const filtered = showNSFW
+        ? allComics
+        : allComics.filter((c) => !c.isNSFW);
+
+      setComics(filtered);
+    }
+  }, [showNSFW, allComics]);
+
   // Add comic
   const addComic = async (comicData) => {
     setLoading(true);
     setError(null);
     try {
-      const isDuplicate = comics.some(
+      const isDuplicate = allComics.some(
         (comic) =>
           comic.title.toLowerCase().trim() ===
           comicData.title.toLowerCase().trim(),
@@ -43,9 +60,18 @@ export const useComics = (showNSFW = false) => {
       }
 
       const newComic = await addComicDB(comicData);
-      setComics(
-        [...comics, newComic].sort((a, b) => a.title.localeCompare(b.title)),
+
+      // Update both allComics and comics
+      const updatedAll = [...allComics, newComic].sort((a, b) =>
+        a.title.localeCompare(b.title),
       );
+      setAllComics(updatedAll);
+
+      const filtered = showNSFW
+        ? updatedAll
+        : updatedAll.filter((c) => !c.isNSFW);
+      setComics(filtered);
+
       return { success: true, message: "Komik berhasil ditambahkan!" };
     } catch (err) {
       setError(err.message || "Gagal menambahkan komik");
@@ -60,7 +86,7 @@ export const useComics = (showNSFW = false) => {
     setLoading(true);
     setError(null);
     try {
-      const isDuplicate = comics.some(
+      const isDuplicate = allComics.some(
         (comic) =>
           comic.id !== comicId &&
           comic.title.toLowerCase().trim() ===
@@ -72,11 +98,18 @@ export const useComics = (showNSFW = false) => {
       }
 
       const updated = await updateComicDB(comicId, comicData);
-      setComics(
-        comics
-          .map((c) => (c.id === comicId ? updated : c))
-          .sort((a, b) => a.title.localeCompare(b.title)),
-      );
+
+      // Update both allComics and comics
+      const updatedAll = allComics
+        .map((c) => (c.id === comicId ? updated : c))
+        .sort((a, b) => a.title.localeCompare(b.title));
+      setAllComics(updatedAll);
+
+      const filtered = showNSFW
+        ? updatedAll
+        : updatedAll.filter((c) => !c.isNSFW);
+      setComics(filtered);
+
       return { success: true, message: "Komik berhasil diperbarui!" };
     } catch (err) {
       setError(err.message || "Gagal memperbarui komik");
@@ -92,7 +125,12 @@ export const useComics = (showNSFW = false) => {
     setError(null);
     try {
       await deleteComicDB(comicId);
-      setComics(comics.filter((c) => c.id !== comicId));
+
+      // Update both
+      const updatedAll = allComics.filter((c) => c.id !== comicId);
+      setAllComics(updatedAll);
+      setComics(updatedAll.filter((c) => showNSFW || !c.isNSFW));
+
       return { success: true, message: "Komik berhasil dihapus!" };
     } catch (err) {
       setError(err.message || "Gagal menghapus komik");
@@ -108,7 +146,7 @@ export const useComics = (showNSFW = false) => {
     setError(null);
     try {
       await bulkUploadDB(comicsArray);
-      await loadComics();
+      await loadComics(); // Reload all
       return {
         success: true,
         message: `${comicsArray.length} komik berhasil diimport!`,
@@ -121,14 +159,14 @@ export const useComics = (showNSFW = false) => {
     }
   };
 
-  // ⬇️ Load HANYA saat showNSFW berubah (bukan setiap render)
+  // ⬇️ Load ONCE on mount
   useEffect(() => {
     loadComics();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showNSFW]); // Dependency: hanya showNSFW
+  }, []); // Only on mount
 
   return {
-    comics,
+    comics, // Filtered comics
     loading,
     error,
     loadComics,

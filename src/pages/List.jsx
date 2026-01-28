@@ -51,7 +51,7 @@ export const List = ({ comics, onEdit, onDelete, onUploadJSON, canEdit }) => {
               <div
                 className={`text-sm ${darkMode ? "text-yellow-300" : "text-yellow-600"}`}
               >
-                You cannot add, edit, or delete comics. NSFW content is hidden.
+                You cannot add, edit, or delete comics. Some content is hidden.
                 Login with Google for full access.
               </div>
             </div>

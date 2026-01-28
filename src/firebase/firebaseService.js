@@ -1,13 +1,12 @@
 import {
   collection,
-  addDoc,
   getDocs,
+  addDoc,
   updateDoc,
   deleteDoc,
   doc,
   query,
   orderBy,
-  where,
   Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -17,50 +16,39 @@ const COLLECTION_NAME = "comics";
 // Helper: Convert Firestore Timestamp to ISO string
 const normalizeTimestamp = (timestamp) => {
   if (!timestamp) return new Date().toISOString();
-
-  // Jika sudah string ISO
   if (typeof timestamp === "string") return timestamp;
-
-  // Jika Firestore Timestamp object
   if (timestamp.toDate && typeof timestamp.toDate === "function") {
     return timestamp.toDate().toISOString();
   }
-
-  // Jika Date object
   if (timestamp instanceof Date) {
     return timestamp.toISOString();
   }
-
-  // Fallback
   return new Date().toISOString();
 };
 
-// Get all comics (dengan filter NSFW untuk guest)
-export const getAllComics = async (showNSFW = false) => {
+// ⬇️ SIMPLIFIED: Load ALL comics (no where filter)
+export const getAllComics = async () => {
   try {
-    let q;
+    console.time("Firestore Query"); // ⬅️ Measure performance
 
-    if (showNSFW) {
-      q = query(collection(db, COLLECTION_NAME), orderBy("title", "asc"));
-    } else {
-      q = query(
-        collection(db, COLLECTION_NAME),
-        where("isNSFW", "==", false),
-        orderBy("title", "asc"),
-      );
-    }
+    // Simple query: hanya orderBy title
+    const q = query(collection(db, COLLECTION_NAME), orderBy("title", "asc"));
 
     const querySnapshot = await getDocs(q);
+    console.timeEnd("Firestore Query");
+    console.log("Total docs fetched:", querySnapshot.size);
+
     const comics = [];
     querySnapshot.forEach((docSnap) => {
       const data = docSnap.data();
       comics.push({
         id: docSnap.id,
         ...data,
-        // ⬇️ Normalize updatedAt to ISO string
         updatedAt: normalizeTimestamp(data.updatedAt),
+        isNSFW: data.isNSFW || false, // Ensure isNSFW exists
       });
     });
+
     return comics;
   } catch (error) {
     console.error("Error getting comics:", error);
@@ -68,10 +56,10 @@ export const getAllComics = async (showNSFW = false) => {
   }
 };
 
-// Add new comic (dengan NSFW flag)
+// Add new comic
 export const addComic = async (comicData) => {
   try {
-    const now = Timestamp.now(); // ⬇️ Use Firestore Timestamp
+    const now = Timestamp.now();
     const docRef = await addDoc(collection(db, COLLECTION_NAME), {
       ...comicData,
       isNSFW: comicData.isNSFW || false,
@@ -81,7 +69,7 @@ export const addComic = async (comicData) => {
       id: docRef.id,
       ...comicData,
       isNSFW: comicData.isNSFW || false,
-      updatedAt: now.toDate().toISOString(), // ⬇️ Return as ISO string
+      updatedAt: now.toDate().toISOString(),
     };
   } catch (error) {
     console.error("Error adding comic:", error);
@@ -110,7 +98,7 @@ export const updateComic = async (comicId, comicData) => {
   }
 };
 
-// Delete comic (unchanged)
+// Delete comic
 export const deleteComic = async (comicId) => {
   try {
     await deleteDoc(doc(db, COLLECTION_NAME, comicId));
@@ -121,7 +109,7 @@ export const deleteComic = async (comicId) => {
   }
 };
 
-// Bulk upload from JSON (dengan NSFW support)
+// Bulk upload
 export const bulkUploadComics = async (comicsArray) => {
   try {
     const now = Timestamp.now();

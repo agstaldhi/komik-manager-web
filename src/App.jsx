@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider, useAuth } from "./context/AuthContext"; // ⬅️ Import AuthProvider
 import { useComics } from "./hooks/useComics";
 import { Navbar } from "./components/Navbar";
 import { Toast } from "./components/Toast";
@@ -8,27 +9,20 @@ import { ModalDelete } from "./components/ModalDelete";
 import { Home } from "./pages/Home";
 import { List } from "./pages/List";
 import { AddEdit } from "./pages/AddEdit";
+import { Login } from "./pages/Login"; // ⬅️ Import Login
 import { useTheme } from "./context/ThemeContext";
-import { useAuth } from "./context/AuthContext";
-import { Login } from "./pages/Login";
-import { AuthProvider } from "./context/AuthContext";
 
 const AppContent = () => {
-  const { user } = useAuth();
   const { darkMode } = useTheme();
+  const { user, isGuest, canEdit, showNSFW, signOut } = useAuth(); // ⬅️ Auth state
   const { comics, loading, addComic, updateComic, deleteComic, bulkUpload } =
-    useComics();
+    useComics(showNSFW); // ⬅️ Pass showNSFW
 
   const [page, setPage] = useState("home");
   const [editingComic, setEditingComic] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
   const [notification, setNotification] = useState(null);
 
-  if (!user) {
-    return <Login />;
-  }
-
-  // Update HTML class untuk background color
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.remove("light-mode");
@@ -50,11 +44,20 @@ const AppContent = () => {
   };
 
   const handleEdit = (comic) => {
+    if (!canEdit) {
+      showNotification("Guest mode tidak bisa edit komik!", "error");
+      return;
+    }
     setEditingComic(comic);
     setPage("add");
   };
 
   const handleSave = async (formData) => {
+    if (!canEdit) {
+      showNotification("Guest mode tidak bisa menambah/edit komik!", "error");
+      return;
+    }
+
     if (!formData.title || !formData.episode || !formData.link) {
       showNotification("Semua field harus diisi!", "error");
       return;
@@ -66,12 +69,14 @@ const AppContent = () => {
         title: formData.title,
         episode: parseInt(formData.episode),
         link: formData.link,
+        isNSFW: formData.isNSFW || false, // ⬅️ Support NSFW
       });
     } else {
       result = await addComic({
         title: formData.title,
         episode: parseInt(formData.episode),
         link: formData.link,
+        isNSFW: formData.isNSFW || false, // ⬅️ Support NSFW
       });
     }
 
@@ -85,6 +90,11 @@ const AppContent = () => {
   };
 
   const handleDelete = async () => {
+    if (!canEdit) {
+      showNotification("Guest mode tidak bisa hapus komik!", "error");
+      return;
+    }
+
     if (!showDeleteModal) return;
 
     const result = await deleteComic(showDeleteModal.id);
@@ -99,6 +109,11 @@ const AppContent = () => {
   };
 
   const handleUploadJSON = async (e) => {
+    if (!canEdit) {
+      showNotification("Guest mode tidak bisa upload komik!", "error");
+      return;
+    }
+
     const file = e.target.files[0];
     if (!file) return;
 
@@ -121,11 +136,24 @@ const AppContent = () => {
     e.target.value = null;
   };
 
+  const handleSignOut = async () => {
+    if (window.confirm("Yakin ingin logout?")) {
+      const result = await signOut();
+      if (result.success) {
+        showNotification("Berhasil logout!", "success");
+        setPage("home");
+      }
+    }
+  };
+
+  // ⬇️ REDIRECT KE LOGIN JIKA BELUM LOGIN ⬇️
+  if (!user) {
+    return <Login />;
+  }
+
   return (
     <div
-      className={`min-h-screen ${
-        darkMode ? "bg-black text-green-400" : "bg-gray-100 text-gray-800"
-      } transition-colors duration-300`}
+      className={`min-h-screen ${darkMode ? "bg-black text-green-400" : "bg-gray-100 text-gray-800"} transition-colors duration-300`}
     >
       {/* Loading Overlay */}
       {loading && (
@@ -149,8 +177,14 @@ const AppContent = () => {
         onCancel={() => setShowDeleteModal(null)}
       />
 
-      {/* Navbar */}
-      <Navbar currentPage={page} onPageChange={handlePageChange} />
+      {/* Navbar with Logout */}
+      <Navbar
+        currentPage={page}
+        onPageChange={handlePageChange}
+        user={user}
+        isGuest={isGuest}
+        onSignOut={handleSignOut}
+      />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 relative z-10">
@@ -164,20 +198,22 @@ const AppContent = () => {
               onEdit={handleEdit}
               onDelete={setShowDeleteModal}
               onUploadJSON={handleUploadJSON}
+              canEdit={canEdit} // ⬅️ Pass canEdit prop
             />
           )}
 
-          {page === "add" && (
-            <AddEdit
-              key="add"
-              editingComic={editingComic}
-              onSave={handleSave}
-              onCancel={() => {
-                setEditingComic(null);
-                setPage("list");
-              }}
-            />
-          )}
+          {page === "add" &&
+            canEdit && ( // ⬅️ Hanya tampil jika bisa edit
+              <AddEdit
+                key="add"
+                editingComic={editingComic}
+                onSave={handleSave}
+                onCancel={() => {
+                  setEditingComic(null);
+                  setPage("list");
+                }}
+              />
+            )}
         </AnimatePresence>
       </div>
     </div>
@@ -186,11 +222,13 @@ const AppContent = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        {" "}
+        {/* ⬅️ Wrap with AuthProvider */}
         <AppContent />
-      </ThemeProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

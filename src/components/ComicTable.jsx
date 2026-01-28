@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 
-export const ComicTable = ({ comics, onEdit, onDelete }) => {
+export const ComicTable = ({ comics, onEdit, onDelete, canEdit }) => {
   const { darkMode } = useTheme();
 
   return (
@@ -19,7 +19,7 @@ export const ComicTable = ({ comics, onEdit, onDelete }) => {
           <tr>
             <th className="px-4 py-3 text-left">Judul</th>
             <th className="px-4 py-3 text-left">Episode</th>
-            <th className="px-4 py-3 text-left">Aksi</th>
+            {canEdit && <th className="px-4 py-3 text-left">Aksi</th>}
           </tr>
         </thead>
         <tbody>
@@ -47,29 +47,36 @@ export const ComicTable = ({ comics, onEdit, onDelete }) => {
                   }`}
                 >
                   {comic.title}
+                  {comic.isNSFW && (
+                    <span className="px-2 py-0.5 text-xs font-bold rounded bg-red-500 text-white">
+                      18+
+                    </span>
+                  )}
                 </a>
               </td>
               <td className="px-4 py-3">{comic.episode}</td>
-              <td className="px-4 py-3">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => onEdit(comic)}
-                    className={`px-3 py-1 rounded border-2 transition-all ${
-                      darkMode
-                        ? "border-green-500 text-green-400 hover:bg-green-500 hover:text-black"
-                        : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
-                    }`}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => onDelete(comic)}
-                    className="px-3 py-1 rounded border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all"
-                  >
-                    Hapus
-                  </button>
-                </div>
-              </td>
+              {canEdit && (
+                <td className="px-4 py-3">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => onEdit(comic)}
+                      className={`px-3 py-1 rounded border-2 transition-all ${
+                        darkMode
+                          ? "border-green-500 text-green-400 hover:bg-green-500 hover:text-black"
+                          : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+                      }`}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => onDelete(comic)}
+                      className="px-3 py-1 rounded border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </td>
+              )}
             </motion.tr>
           ))}
         </tbody>

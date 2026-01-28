@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext"; // ⬅️ Import useAuth
 import { ComicTable } from "../components/ComicTable";
 
-export const List = ({ comics, onEdit, onDelete, onUploadJSON }) => {
+export const List = ({ comics, onEdit, onDelete, onUploadJSON, canEdit }) => {
   const { darkMode } = useTheme();
+  const { showNSFW } = useAuth(); // ⬅️ Get showNSFW untuk filter
   const [searchQuery, setSearchQuery] = useState("");
 
   const pageVariants = {
@@ -13,10 +15,14 @@ export const List = ({ comics, onEdit, onDelete, onUploadJSON }) => {
     exit: { opacity: 0, y: -20 },
   };
 
-  // Filter comics berdasarkan search query
-  const filteredComics = comics.filter((comic) =>
-    comic.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // ⬇️ Filter comics: search + NSFW filter
+  const filteredComics = comics.filter((comic) => {
+    const matchSearch = comic.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchNSFW = showNSFW || !comic.isNSFW; // Jika guest, hide NSFW
+    return matchSearch && matchNSFW;
+  });
 
   return (
     <motion.div
@@ -25,37 +31,63 @@ export const List = ({ comics, onEdit, onDelete, onUploadJSON }) => {
       animate="animate"
       exit="exit"
     >
-      {/* Import JSON */}
-      <div className="mb-4">
-        <label
-          className={`block mb-2 ${
-            darkMode ? "text-green-400" : "text-gray-700"
-          } font-bold`}
+      {/* Guest Mode Warning */}
+      {!canEdit && (
+        <div
+          className={`mb-4 p-4 rounded-lg border-2 ${
+            darkMode
+              ? "border-yellow-500 bg-yellow-500/10"
+              : "border-yellow-600 bg-yellow-50"
+          }`}
         >
-          📤 Import JSON
-        </label>
-        <input
-          type="file"
-          accept=".json"
-          onChange={onUploadJSON}
-          className={`w-full px-4 py-2 rounded-lg border-2 ${
-            darkMode
-              ? "border-green-500 bg-black text-green-400"
-              : "border-gray-300 bg-white text-gray-800"
-          } file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 ${
-            darkMode
-              ? "file:bg-green-500 file:text-black hover:file:bg-green-400"
-              : "file:bg-green-600 file:text-white hover:file:bg-green-700"
-          } file:cursor-pointer cursor-pointer`}
-        />
-      </div>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">⚠️</span>
+            <div>
+              <div
+                className={`font-bold ${darkMode ? "text-yellow-400" : "text-yellow-700"}`}
+              >
+                Guest Mode - View Only
+              </div>
+              <div
+                className={`text-sm ${darkMode ? "text-yellow-300" : "text-yellow-600"}`}
+              >
+                You cannot add, edit, or delete comics. NSFW content is hidden.
+                Login with Google for full access.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import JSON - Only for authenticated users */}
+      {canEdit && (
+        <div className="mb-4">
+          <label
+            className={`block mb-2 ${darkMode ? "text-green-400" : "text-gray-700"} font-bold`}
+          >
+            📤 Import JSON
+          </label>
+          <input
+            type="file"
+            accept=".json"
+            onChange={onUploadJSON}
+            className={`w-full px-4 py-2 rounded-lg border-2 ${
+              darkMode
+                ? "border-green-500 bg-black text-green-400"
+                : "border-gray-300 bg-white text-gray-800"
+            } file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 ${
+              darkMode
+                ? "file:bg-green-500 file:text-black hover:file:bg-green-400"
+                : "file:bg-green-600 file:text-white hover:file:bg-green-700"
+            } file:cursor-pointer cursor-pointer`}
+          />
+        </div>
+      )}
 
       {/* Search Bar */}
       <div className="mb-6">
         <label
-          className={`block mb-2 ${
-            darkMode ? "text-green-400" : "text-gray-700"
-          } font-bold`}
+          className={`block mb-2 ${darkMode ? "text-green-400" : "text-gray-700"} font-bold`}
         >
           🔍 Search Comics
         </label>
@@ -72,9 +104,7 @@ export const List = ({ comics, onEdit, onDelete, onUploadJSON }) => {
         />
         {searchQuery && (
           <p
-            className={`text-sm mt-2 ${
-              darkMode ? "text-green-300" : "text-gray-600"
-            }`}
+            className={`text-sm mt-2 ${darkMode ? "text-green-300" : "text-gray-600"}`}
           >
             Menampilkan {filteredComics.length} dari {comics.length} komik
           </p>
@@ -87,6 +117,7 @@ export const List = ({ comics, onEdit, onDelete, onUploadJSON }) => {
           comics={filteredComics}
           onEdit={onEdit}
           onDelete={onDelete}
+          canEdit={canEdit}
         />
       ) : (
         <div
@@ -98,9 +129,7 @@ export const List = ({ comics, onEdit, onDelete, onUploadJSON }) => {
         >
           <div className={`text-6xl mb-4`}>🔍</div>
           <p
-            className={`text-xl ${
-              darkMode ? "text-green-300" : "text-gray-600"
-            }`}
+            className={`text-xl ${darkMode ? "text-green-300" : "text-gray-600"}`}
           >
             {searchQuery
               ? `Tidak ada komik dengan judul "${searchQuery}"`

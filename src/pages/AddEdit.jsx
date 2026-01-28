@@ -8,6 +8,7 @@ export const AddEdit = ({ editingComic, onSave, onCancel }) => {
     title: "",
     episode: "",
     link: "",
+    isNSFW: false, // ⬅️ Add NSFW field
   });
 
   useEffect(() => {
@@ -16,9 +17,10 @@ export const AddEdit = ({ editingComic, onSave, onCancel }) => {
         title: editingComic.title,
         episode: editingComic.episode,
         link: editingComic.link,
+        isNSFW: editingComic.isNSFW || false, // ⬅️ Load NSFW value
       });
     } else {
-      setFormData({ title: "", episode: "", link: "" });
+      setFormData({ title: "", episode: "", link: "", isNSFW: false });
     }
   }, [editingComic]);
 
@@ -42,14 +44,10 @@ export const AddEdit = ({ editingComic, onSave, onCancel }) => {
       className="max-w-2xl mx-auto"
     >
       <div
-        className={`border-2 ${
-          darkMode ? "border-green-500 bg-black/30" : "border-gray-300 bg-white"
-        } rounded-xl p-8 shadow-2xl ${darkMode && "shadow-green-500/20"}`}
+        className={`border-2 ${darkMode ? "border-green-500 bg-black/30" : "border-gray-300 bg-white"} rounded-xl p-8 shadow-2xl ${darkMode && "shadow-green-500/20"}`}
       >
         <h2
-          className={`text-3xl font-bold mb-6 ${
-            darkMode ? "text-green-400" : "text-gray-800"
-          }`}
+          className={`text-3xl font-bold mb-6 ${darkMode ? "text-green-400" : "text-gray-800"}`}
         >
           {editingComic ? "✏️ Edit Komik" : "➕ Tambah Komik Baru"}
         </h2>
@@ -57,9 +55,7 @@ export const AddEdit = ({ editingComic, onSave, onCancel }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              className={`block mb-2 font-bold ${
-                darkMode ? "text-green-400" : "text-gray-700"
-              }`}
+              className={`block mb-2 font-bold ${darkMode ? "text-green-400" : "text-gray-700"}`}
             >
               Judul
             </label>
@@ -81,9 +77,7 @@ export const AddEdit = ({ editingComic, onSave, onCancel }) => {
 
           <div>
             <label
-              className={`block mb-2 font-bold ${
-                darkMode ? "text-green-400" : "text-gray-700"
-              }`}
+              className={`block mb-2 font-bold ${darkMode ? "text-green-400" : "text-gray-700"}`}
             >
               Episode
             </label>
@@ -105,9 +99,7 @@ export const AddEdit = ({ editingComic, onSave, onCancel }) => {
 
           <div>
             <label
-              className={`block mb-2 font-bold ${
-                darkMode ? "text-green-400" : "text-gray-700"
-              }`}
+              className={`block mb-2 font-bold ${darkMode ? "text-green-400" : "text-gray-700"}`}
             >
               Link
             </label>
@@ -125,6 +117,38 @@ export const AddEdit = ({ editingComic, onSave, onCancel }) => {
               placeholder="Masukkan link komik..."
               required
             />
+          </div>
+
+          {/* ⬇️ NSFW CHECKBOX ⬇️ */}
+          <div
+            className={`p-4 rounded-lg border-2 ${
+              darkMode
+                ? "border-red-500/50 bg-red-500/10"
+                : "border-red-300 bg-red-50"
+            }`}
+          >
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.isNSFW}
+                onChange={(e) =>
+                  setFormData({ ...formData, isNSFW: e.target.checked })
+                }
+                className="w-5 h-5 rounded border-2 border-red-500 text-red-500 focus:ring-2 focus:ring-red-500 cursor-pointer"
+              />
+              <div>
+                <div
+                  className={`font-bold ${darkMode ? "text-red-400" : "text-red-700"}`}
+                >
+                  🔞 NSFW Content (18+)
+                </div>
+                <div
+                  className={`text-sm ${darkMode ? "text-red-300" : "text-red-600"}`}
+                >
+                  Komik ini hanya akan terlihat oleh user yang login
+                </div>
+              </div>
+            </label>
           </div>
 
           <div className="flex gap-4 pt-4">

@@ -3,15 +3,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import { ThemeToggle } from "./ThemeToggle";
 
-export const MobileMenu = ({ currentPage, onPageChange }) => {
+export const MobileMenu = ({
+  currentPage,
+  onPageChange,
+  user,
+  isGuest,
+  onSignOut,
+}) => {
   const { darkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
-  const menuItems = [
+  const allMenuItems = [
     { id: "home", label: "Home", icon: "🏠" },
     { id: "list", label: "List", icon: "📋" },
     { id: "add", label: "Add", icon: "➕" },
   ];
+
+  const menuItems = isGuest
+    ? allMenuItems.filter((item) => item.id !== "add") // Guest tidak bisa lihat Add
+    : allMenuItems;
 
   // Disable body scroll saat menu terbuka
   useEffect(() => {
@@ -58,6 +68,11 @@ export const MobileMenu = ({ currentPage, onPageChange }) => {
     setIsOpen(false);
   };
 
+  const handleLogout = () => {
+    setIsOpen(false);
+    onSignOut();
+  };
+
   return (
     <>
       {/* Hamburger Button */}
@@ -74,21 +89,15 @@ export const MobileMenu = ({ currentPage, onPageChange }) => {
         <div className="w-6 h-5 flex flex-col justify-between">
           <motion.span
             animate={isOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
-            className={`w-full h-0.5 ${
-              darkMode ? "bg-green-400" : "bg-gray-700"
-            } rounded transition-all`}
+            className={`w-full h-0.5 ${darkMode ? "bg-green-400" : "bg-gray-700"} rounded transition-all`}
           />
           <motion.span
             animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
-            className={`w-full h-0.5 ${
-              darkMode ? "bg-green-400" : "bg-gray-700"
-            } rounded transition-all`}
+            className={`w-full h-0.5 ${darkMode ? "bg-green-400" : "bg-gray-700"} rounded transition-all`}
           />
           <motion.span
             animate={isOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
-            className={`w-full h-0.5 ${
-              darkMode ? "bg-green-400" : "bg-gray-700"
-            } rounded transition-all`}
+            className={`w-full h-0.5 ${darkMode ? "bg-green-400" : "bg-gray-700"} rounded transition-all`}
           />
         </div>
       </button>
@@ -152,12 +161,10 @@ export const MobileMenu = ({ currentPage, onPageChange }) => {
               }}
             >
               <div className="p-6 min-h-full flex flex-col">
-                {/* Close Button */}
+                {/* Header with Close Button */}
                 <div className="flex justify-between items-center mb-6">
                   <h2
-                    className={`text-2xl font-bold ${
-                      darkMode ? "text-green-400" : "text-gray-800"
-                    }`}
+                    className={`text-2xl font-bold ${darkMode ? "text-green-400" : "text-gray-800"}`}
                   >
                     Menu
                   </h2>
@@ -186,6 +193,63 @@ export const MobileMenu = ({ currentPage, onPageChange }) => {
                   </button>
                 </div>
 
+                {/* User Info Card */}
+                {user && (
+                  <div
+                    className={`mb-6 p-4 rounded-lg border-2 ${
+                      darkMode
+                        ? "border-green-500/30 bg-black/50"
+                        : "border-gray-300 bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {user.photoURL ? (
+                        <img
+                          src={user.photoURL}
+                          alt="User"
+                          className="w-12 h-12 rounded-full border-2 border-green-500"
+                        />
+                      ) : (
+                        <div
+                          className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold border-2 ${
+                            darkMode
+                              ? "bg-green-500 text-black border-green-400"
+                              : "bg-green-600 text-white border-green-700"
+                          }`}
+                        >
+                          {isGuest ? "👤" : user.email?.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div
+                          className={`font-bold ${darkMode ? "text-green-400" : "text-gray-800"}`}
+                        >
+                          {isGuest
+                            ? "Guest User"
+                            : user.displayName || user.email}
+                        </div>
+                        <div
+                          className={`text-xs ${darkMode ? "text-green-300" : "text-gray-600"}`}
+                        >
+                          {isGuest ? "View Only Mode" : user.email}
+                        </div>
+                      </div>
+                    </div>
+                    {isGuest && (
+                      <div
+                        className={`mt-3 pt-3 border-t ${darkMode ? "border-green-500/30" : "border-gray-300"}`}
+                      >
+                        <p
+                          className={`text-xs ${darkMode ? "text-green-300" : "text-gray-600"}`}
+                        >
+                          ⚠️ Limited access: Cannot edit, delete, or view NSFW
+                          content
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Navigation Menu */}
                 <nav className="space-y-2 mb-4">
                   {menuItems.map((item) => (
@@ -198,8 +262,8 @@ export const MobileMenu = ({ currentPage, onPageChange }) => {
                             ? "bg-green-500 border-green-500 text-black font-bold shadow-lg shadow-green-500/50"
                             : "bg-green-600 border-green-600 text-white font-bold"
                           : darkMode
-                          ? "border-green-500/30 text-green-400 hover:border-green-500 hover:bg-green-500/10"
-                          : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                            ? "border-green-500/30 text-green-400 hover:border-green-500 hover:bg-green-500/10"
+                            : "border-gray-300 text-gray-700 hover:bg-gray-50"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -212,9 +276,7 @@ export const MobileMenu = ({ currentPage, onPageChange }) => {
 
                 {/* Divider */}
                 <div
-                  className={`border-t ${
-                    darkMode ? "border-green-500/30" : "border-gray-300"
-                  } my-4`}
+                  className={`border-t ${darkMode ? "border-green-500/30" : "border-gray-300"} my-4`}
                 />
 
                 {/* Theme Toggle */}
@@ -225,21 +287,30 @@ export const MobileMenu = ({ currentPage, onPageChange }) => {
                 {/* Spacer */}
                 <div className="flex-grow"></div>
 
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className={`w-full py-3 px-4 rounded-lg border-2 font-bold transition-all mb-4 ${
+                    darkMode
+                      ? "border-red-500 bg-red-500 text-white hover:bg-red-600"
+                      : "border-red-600 bg-red-600 text-white hover:bg-red-700"
+                  }`}
+                >
+                  🚪 Logout
+                </button>
+
                 {/* Info Footer */}
                 <div
-                  className={`mt-auto p-4 rounded-lg border ${
+                  className={`p-4 rounded-lg border ${
                     darkMode
                       ? "border-green-500/30 bg-black/50"
                       : "border-gray-300 bg-gray-50"
                   }`}
                 >
                   <p
-                    className={`text-sm ${
-                      darkMode ? "text-green-300" : "text-gray-600"
-                    }`}
+                    className={`text-sm ${darkMode ? "text-green-300" : "text-gray-600"}`}
                   >
-                    💡 Tip: Gunakan fitur search di halaman List untuk mencari
-                    komik!
+                    💡 Tip: Login dengan Google untuk akses penuh!
                   </p>
                 </div>
               </div>

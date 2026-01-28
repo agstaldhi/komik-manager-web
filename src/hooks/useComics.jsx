@@ -7,17 +7,17 @@ import {
   bulkUploadComics as bulkUploadDB,
 } from "../firebase/firebaseService";
 
-export const useComics = () => {
+export const useComics = (showNSFW = false) => {
   const [comics, setComics] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Load comics
+  // Load comics dengan filter NSFW
   const loadComics = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getAllComics();
+      const data = await getAllComics(showNSFW);
       setComics(data);
     } catch (err) {
       setError("Gagal memuat data dari Firestore");
@@ -32,11 +32,10 @@ export const useComics = () => {
     setLoading(true);
     setError(null);
     try {
-      // Check duplicate
       const isDuplicate = comics.some(
         (comic) =>
           comic.title.toLowerCase().trim() ===
-          comicData.title.toLowerCase().trim()
+          comicData.title.toLowerCase().trim(),
       );
 
       if (isDuplicate) {
@@ -45,7 +44,7 @@ export const useComics = () => {
 
       const newComic = await addComicDB(comicData);
       setComics(
-        [...comics, newComic].sort((a, b) => a.title.localeCompare(b.title))
+        [...comics, newComic].sort((a, b) => a.title.localeCompare(b.title)),
       );
       return { success: true, message: "Komik berhasil ditambahkan!" };
     } catch (err) {
@@ -61,12 +60,11 @@ export const useComics = () => {
     setLoading(true);
     setError(null);
     try {
-      // Check duplicate (exclude current comic)
       const isDuplicate = comics.some(
         (comic) =>
           comic.id !== comicId &&
           comic.title.toLowerCase().trim() ===
-            comicData.title.toLowerCase().trim()
+            comicData.title.toLowerCase().trim(),
       );
 
       if (isDuplicate) {
@@ -77,7 +75,7 @@ export const useComics = () => {
       setComics(
         comics
           .map((c) => (c.id === comicId ? updated : c))
-          .sort((a, b) => a.title.localeCompare(b.title))
+          .sort((a, b) => a.title.localeCompare(b.title)),
       );
       return { success: true, message: "Komik berhasil diperbarui!" };
     } catch (err) {
@@ -110,7 +108,7 @@ export const useComics = () => {
     setError(null);
     try {
       await bulkUploadDB(comicsArray);
-      await loadComics(); // Reload data
+      await loadComics();
       return {
         success: true,
         message: `${comicsArray.length} komik berhasil diimport!`,
@@ -123,10 +121,11 @@ export const useComics = () => {
     }
   };
 
-  // Load on mount
+  // ⬇️ Load HANYA saat showNSFW berubah (bukan setiap render)
   useEffect(() => {
     loadComics();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showNSFW]); // Dependency: hanya showNSFW
 
   return {
     comics,

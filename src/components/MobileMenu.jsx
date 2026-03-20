@@ -84,7 +84,6 @@ export const MobileMenu = ({
             : "bg-white border-gray-400 text-gray-700 hover:bg-gray-50"
         } shadow-lg transition-all`}
         aria-label="Menu"
-        style={{ position: "relative", zIndex: 9999 }}
       >
         <div className="w-6 h-5 flex flex-col justify-between">
           <motion.span

@@ -9,7 +9,7 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit }) => {
       <table
         className={`w-full border-2 ${
           darkMode ? "border-green-500" : "border-gray-300"
-        } rounded-lg overflow-hidden`}
+        } rounded-lg overflow-hidden text-sm sm:text-base`}
       >
         <thead
           className={
@@ -17,9 +17,9 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit }) => {
           }
         >
           <tr>
-            <th className="px-4 py-3 text-left">Judul</th>
-            <th className="px-4 py-3 text-left">Episode</th>
-            {canEdit && <th className="px-4 py-3 text-left">Aksi</th>}
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left w-1/2 sm:w-auto">Judul</th>
+            <th className="px-2 py-2 sm:px-4 sm:py-3 text-center w-1/4 sm:w-auto">Eps</th>
+            {canEdit && <th className="px-2 py-2 sm:px-4 sm:py-3 text-left w-1/4 sm:w-auto">Aksi</th>}
           </tr>
         </thead>
         <tbody>
@@ -35,32 +35,33 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit }) => {
                   : "border-gray-200 hover:bg-gray-50"
               } transition-colors`}
             >
-              <td className="px-4 py-3">
+              <td className="px-2 py-2 sm:px-4 sm:py-3 align-middle">
                 <a
                   href={comic.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`hover:underline ${
+                  className={`hover:underline block break-words whitespace-normal min-w-0 ${
                     darkMode
                       ? "text-green-400 hover:text-green-300"
                       : "text-green-600 hover:text-green-700"
                   }`}
+                  style={{ wordBreak: 'break-word' }}
                 >
                   {comic.title}
                   {comic.isNSFW && (
-                    <span className="px-2 py-0.5 text-xs font-bold rounded bg-red-500 text-white">
+                    <span className="inline-block ml-1 px-1.5 py-0.5 text-[10px] sm:text-xs font-bold rounded bg-red-500 text-white align-middle">
                       18+
                     </span>
                   )}
                 </a>
               </td>
-              <td className="px-4 py-3">{comic.episode}</td>
+              <td className="px-2 py-2 sm:px-4 sm:py-3 text-center align-middle">{comic.episode}</td>
               {canEdit && (
-                <td className="px-4 py-3">
-                  <div className="flex gap-2">
+                <td className="px-2 py-2 sm:px-4 sm:py-3 align-middle">
+                  <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2">
                     <button
                       onClick={() => onEdit(comic)}
-                      className={`px-3 py-1 rounded border-2 transition-all ${
+                      className={`px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-base rounded border-2 transition-all ${
                         darkMode
                           ? "border-green-500 text-green-400 hover:bg-green-500 hover:text-black"
                           : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
@@ -70,7 +71,7 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit }) => {
                     </button>
                     <button
                       onClick={() => onDelete(comic)}
-                      className="px-3 py-1 rounded border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                      className="px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-base rounded border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all"
                     >
                       Hapus
                     </button>

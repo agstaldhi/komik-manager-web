@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext"; // ⬅️ Import useAuth
@@ -6,8 +7,10 @@ import { ComicTable } from "../components/ComicTable";
 
 export const List = ({ comics, onEdit, onDelete, onUploadJSON, canEdit }) => {
   const { darkMode } = useTheme();
-  const { showNSFW } = useAuth(); // ⬅️ Get showNSFW untuk filter
+  // We can remove showNSFW from useAuth here since useComics already filtered it based on showNSFW.
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -15,14 +18,21 @@ export const List = ({ comics, onEdit, onDelete, onUploadJSON, canEdit }) => {
     exit: { opacity: 0, y: -20 },
   };
 
-  // ⬇️ Filter comics: search + NSFW filter
-  const filteredComics = comics.filter((comic) => {
-    const matchSearch = comic.title
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchNSFW = showNSFW || !comic.isNSFW; // Jika guest, hide NSFW
-    return matchSearch && matchNSFW;
-  });
+  // ⬇️ Filter comics: search (NSFW filter is already handled by useComics)
+  const filteredComics = useMemo(() => {
+    return comics.filter((comic) =>
+      comic.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [comics, searchQuery]);
+
+  const totalPages = Math.ceil(filteredComics.length / itemsPerPage);
+  
+  const paginatedComics = useMemo(() => {
+    return filteredComics.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
+  }, [filteredComics, currentPage]);
 
   return (
     <motion.div
@@ -94,7 +104,10 @@ export const List = ({ comics, onEdit, onDelete, onUploadJSON, canEdit }) => {
         <input
           type="text"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setCurrentPage(1);
+          }}
           placeholder="Cari komik berdasarkan judul..."
           className={`w-full px-4 py-3 rounded-lg border-2 text-lg ${
             darkMode
@@ -113,12 +126,50 @@ export const List = ({ comics, onEdit, onDelete, onUploadJSON, canEdit }) => {
 
       {/* Comic Table */}
       {filteredComics.length > 0 ? (
-        <ComicTable
-          comics={filteredComics}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          canEdit={canEdit}
-        />
+        <>
+          <ComicTable
+            comics={paginatedComics}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            canEdit={canEdit}
+          />
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-6 px-2">
+              <span className={`text-sm ${darkMode ? "text-green-400" : "text-gray-600"} mb-4 sm:mb-0`}>
+                Halaman {currentPage} dari {totalPages}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className={`p-2 flex items-center gap-1 rounded font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    darkMode
+                      ? "bg-green-500/10 text-green-400 hover:bg-green-500/20 border border-green-500/30"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  <ChevronLeft size={18} /> Prev
+                </button>
+                <div className="flex gap-1">
+                  {/* Quick page numbers logic can be added here if needed, keeping it simple for now */}
+                </div>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className={`p-2 flex items-center gap-1 rounded font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    darkMode
+                      ? "bg-green-500/10 text-green-400 hover:bg-green-500/20 border border-green-500/30"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  Next <ChevronRight size={18} />
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       ) : (
         <div
           className={`text-center py-12 border-2 rounded-lg ${

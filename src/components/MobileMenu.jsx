@@ -160,36 +160,39 @@ export const MobileMenu = ({
               }}
             >
               <div className="p-6 min-h-full flex flex-col">
-                {/* Header with Close Button */}
+                {/* Header with Close Button & Theme Toggle */}
                 <div className="flex justify-between items-center mb-6">
                   <h2
                     className={`text-2xl font-bold ${darkMode ? "text-green-400" : "text-gray-800"}`}
                   >
                     Menu
                   </h2>
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className={`p-2 rounded-lg border-2 ${
-                      darkMode
-                        ? "border-green-500/50 text-green-400 hover:bg-green-500/10"
-                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                    } transition-all`}
-                    aria-label="Close Menu"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                  <div className="flex items-center gap-2">
+                    <ThemeToggle />
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className={`p-2 rounded-lg border-2 ${
+                        darkMode
+                          ? "border-green-500/50 text-green-400 hover:bg-green-500/10"
+                          : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                      } transition-all`}
+                      aria-label="Close Menu"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 {/* User Info Card */}
@@ -277,11 +280,6 @@ export const MobileMenu = ({
                 <div
                   className={`border-t ${darkMode ? "border-green-500/30" : "border-gray-300"} my-4`}
                 />
-
-                {/* Theme Toggle */}
-                <div className="mb-4">
-                  <ThemeToggle />
-                </div>
 
                 {/* Spacer */}
                 <div className="flex-grow"></div>

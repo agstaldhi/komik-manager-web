@@ -187,7 +187,7 @@ const AppContent = () => {
       />
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 relative z-10">
+      <div className="container mx-auto px-4 pt-2 pb-8 sm:pt-4 sm:pb-8 relative z-10">
         <AnimatePresence mode="wait">
           {page === "home" && <Home key="home" comics={comics} />}
 
@@ -197,7 +197,6 @@ const AppContent = () => {
               comics={comics}
               onEdit={handleEdit}
               onDelete={setShowDeleteModal}
-              onUploadJSON={handleUploadJSON}
               canEdit={canEdit} // ⬅️ Pass canEdit prop
             />
           )}
@@ -212,6 +211,7 @@ const AppContent = () => {
                   setEditingComic(null);
                   setPage("list");
                 }}
+                onUploadJSON={handleUploadJSON}
               />
             )}
         </AnimatePresence>

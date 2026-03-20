@@ -7,42 +7,23 @@ export const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className={`relative flex items-center gap-3 w-full px-4 py-3 rounded-lg border-2 transition-all ${
+      className={`relative flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all ${
         darkMode
-          ? "border-green-500/30 hover:border-green-500 hover:bg-green-500/10"
-          : "border-gray-300 hover:bg-gray-50"
+          ? "border-green-500/30 hover:border-green-500 hover:bg-green-500/10 text-green-400"
+          : "border-gray-300 hover:bg-gray-100 text-gray-700"
       }`}
+      aria-label="Toggle Theme"
     >
-      {/* Label */}
-      <div className="flex items-center gap-3 flex-1">
-        <span className="text-2xl">{darkMode ? "🌙" : "☀️"}</span>
-        <span
-          className={`text-lg font-medium ${
-            darkMode ? "text-green-400" : "text-gray-700"
-          }`}
-        >
-          {darkMode ? "Dark Mode" : "Light Mode"}
-        </span>
-      </div>
-
-      {/* Toggle Switch */}
-      <div
-        className={`relative w-16 h-8 rounded-full transition-colors ${
-          darkMode ? "bg-green-500" : "bg-gray-300"
-        }`}
+      <motion.div
+        initial={false}
+        animate={{
+          rotate: darkMode ? 360 : 0,
+        }}
+        transition={{ type: "spring", stiffness: 200, damping: 10 }}
+        className="text-2xl flex items-center justify-center"
       >
-        <motion.div
-          layout
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          className={`absolute top-1 ${
-            darkMode ? "left-9" : "left-1"
-          } w-6 h-6 rounded-full ${
-            darkMode ? "bg-black" : "bg-white"
-          } shadow-lg flex items-center justify-center`}
-        >
-          <span className="text-xs">{darkMode ? "🌙" : "☀️"}</span>
-        </motion.div>
-      </div>
+        {darkMode ? "🌙" : "☀️"}
+      </motion.div>
     </button>
   );
 };

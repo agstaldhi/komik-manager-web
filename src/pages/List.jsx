@@ -5,7 +5,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext"; // ⬅️ Import useAuth
 import { ComicTable } from "../components/ComicTable";
 
-export const List = ({ comics, onEdit, onDelete, onUploadJSON, canEdit }) => {
+export const List = ({ comics, onEdit, onDelete, canEdit }) => {
   const { darkMode } = useTheme();
   // We can remove showNSFW from useAuth here since useComics already filtered it based on showNSFW.
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,30 +69,7 @@ export const List = ({ comics, onEdit, onDelete, onUploadJSON, canEdit }) => {
         </div>
       )}
 
-      {/* Import JSON - Only for authenticated users */}
-      {canEdit && (
-        <div className="mb-4">
-          <label
-            className={`block mb-2 ${darkMode ? "text-green-400" : "text-gray-700"} font-bold`}
-          >
-            📤 Import JSON
-          </label>
-          <input
-            type="file"
-            accept=".json"
-            onChange={onUploadJSON}
-            className={`w-full px-4 py-2 rounded-lg border-2 ${
-              darkMode
-                ? "border-green-500 bg-black text-green-400"
-                : "border-gray-300 bg-white text-gray-800"
-            } file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 ${
-              darkMode
-                ? "file:bg-green-500 file:text-black hover:file:bg-green-400"
-                : "file:bg-green-600 file:text-white hover:file:bg-green-700"
-            } file:cursor-pointer cursor-pointer`}
-          />
-        </div>
-      )}
+
 
       {/* Search Bar */}
       <div className="mb-6">

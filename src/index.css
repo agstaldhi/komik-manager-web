@@ -25,7 +25,7 @@ html {
 html,
 body {
   width: 100%;
-  overflow-x: hidden; /* Mencegah scroll ke samping */
+  overflow-x: clip; /* Mencegah scroll ke samping tanpa merusak sticky */
   margin: 0;
   padding: 0;
 }

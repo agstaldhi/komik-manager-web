@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import { ThemeToggle } from "./ThemeToggle";
@@ -78,43 +79,44 @@ export const MobileMenu = ({
       {/* Hamburger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`p-3 rounded-lg border-2 ${
+        className={`p-2 sm:p-2.5 rounded-lg border-2 ${
           darkMode
             ? "bg-black border-green-500 text-green-400 hover:bg-green-500/10"
-            : "bg-white border-gray-400 text-gray-700 hover:bg-gray-50"
+            : "bg-green-50 border-green-600 text-green-700 hover:bg-green-100"
         } shadow-lg transition-all`}
         aria-label="Menu"
       >
         <div className="w-6 h-5 flex flex-col justify-between">
           <motion.span
             animate={isOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
-            className={`w-full h-0.5 ${darkMode ? "bg-green-400" : "bg-gray-700"} rounded transition-all`}
+            className={`w-full h-0.5 ${darkMode ? "bg-green-400" : "bg-green-700"} rounded transition-all`}
           />
           <motion.span
             animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
-            className={`w-full h-0.5 ${darkMode ? "bg-green-400" : "bg-gray-700"} rounded transition-all`}
+            className={`w-full h-0.5 ${darkMode ? "bg-green-400" : "bg-green-700"} rounded transition-all`}
           />
           <motion.span
             animate={isOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
-            className={`w-full h-0.5 ${darkMode ? "bg-green-400" : "bg-gray-700"} rounded transition-all`}
+            className={`w-full h-0.5 ${darkMode ? "bg-green-400" : "bg-green-700"} rounded transition-all`}
           />
         </div>
       </button>
 
       {/* Mobile Menu Overlay */}
-      {isOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 9990,
-          }}
-        >
-          <AnimatePresence>
-            {/* Backdrop */}
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 9990,
+              }}
+            >
+              {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -312,8 +314,10 @@ export const MobileMenu = ({
                 </div>
               </div>
             </motion.div>
-          </AnimatePresence>
-        </div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
       )}
     </>
   );

@@ -2,6 +2,7 @@ import { useMemo } from "react"; // ⬅️ Import useMemo
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import { ComicCollage } from "../components/ComicCollage";
 
 export const Home = ({ comics }) => {
   const { darkMode } = useTheme();
@@ -53,11 +54,16 @@ export const Home = ({ comics }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Welcome & Featured Block (Spans 2 cols) */}
-        <div className={`col-span-1 lg:col-span-2 border-2 ${darkMode ? "border-green-500 bg-black/30" : "border-gray-300 bg-white"} rounded-2xl p-6 sm:p-8 flex flex-col justify-center shadow-lg relative overflow-hidden group`}>
-          <div className="relative z-10 w-full">
-            <h2 className={`text-4xl sm:text-5xl font-black mb-3 ${darkMode ? "text-green-400" : "text-gray-800"}`}>
+        <div className={`col-span-1 lg:col-span-2 border-2 ${darkMode ? "border-green-500 bg-black/30" : "border-gray-300 bg-white"} rounded-2xl p-6 sm:p-8 flex flex-col justify-start shadow-lg relative overflow-hidden group min-h-[380px]`}>
+          
+          {/* Header span full width, z-index 30 di atas karakter */}
+          <div className="relative z-30 w-full mb-4">
+            <h2 className={`text-4xl sm:text-5xl font-black drop-shadow-md sm:whitespace-nowrap ${darkMode ? "text-green-400" : "text-gray-800"}`}>
               Personal Comic Manager
             </h2>
+          </div>
+
+          <div className="relative z-20 w-full lg:w-1/2 flex-1 flex flex-col justify-center">
             <p className={`text-lg mb-6 max-w-lg ${darkMode ? "text-green-300/80" : "text-gray-600"}`}>
               Sistem manajemen koleksi komik pribadi Anda. Pantau kemajuan bacaan dengan cepat, kapanpun dan di manapun.
             </p>
@@ -84,11 +90,15 @@ export const Home = ({ comics }) => {
               </div>
             )}
           </div>
-          {/* Decorative Background Element */}
-          <div className="absolute -right-16 -bottom-16 opacity-10 pointer-events-none transition-transform duration-700 group-hover:rotate-12 group-hover:scale-110">
-             <svg className="w-80 h-80 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-             </svg>
+          {/* Collage Area */}
+          <div 
+            className="absolute inset-y-0 right-0 w-full lg:w-[55%] z-10 flex items-end justify-center pointer-events-none opacity-40 lg:opacity-100"
+            style={{
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 25%, black 100%)",
+              maskImage: "linear-gradient(to right, transparent 0%, black 25%, black 100%)",
+            }}
+          >
+             <ComicCollage />
           </div>
         </div>
 

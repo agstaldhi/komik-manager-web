@@ -10,7 +10,18 @@ export const List = ({ comics, onEdit, onDelete, canEdit }) => {
   // We can remove showNSFW from useAuth here since useComics already filtered it based on showNSFW.
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [nsfwFilter, setNsfwFilter] = useState("all");
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const itemsPerPage = 20;
+
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+    setCurrentPage(1); // Reset page on sort
+  };
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -18,12 +29,35 @@ export const List = ({ comics, onEdit, onDelete, canEdit }) => {
     exit: { opacity: 0, y: -20 },
   };
 
-  // ⬇️ Filter comics: search (NSFW filter is already handled by useComics)
+  // ⬇️ Filter comics: search and local NSFW filter
   const filteredComics = useMemo(() => {
-    return comics.filter((comic) =>
-      comic.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [comics, searchQuery]);
+    let filtered = comics.filter((comic) => {
+      const matchesSearch = comic.title.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+      
+      if (nsfwFilter === "safe" && comic.isNSFW) return false;
+      if (nsfwFilter === "nsfw" && !comic.isNSFW) return false;
+      
+      return true;
+    });
+
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+        if (sortConfig.key === 'title') {
+          return sortConfig.direction === 'asc' 
+            ? a.title.localeCompare(b.title)
+            : b.title.localeCompare(a.title);
+        } else if (sortConfig.key === 'episode') {
+          return sortConfig.direction === 'asc'
+            ? a.episode - b.episode
+            : b.episode - a.episode;
+        }
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [comics, searchQuery, nsfwFilter, sortConfig]);
 
   const totalPages = Math.ceil(filteredComics.length / itemsPerPage);
   
@@ -73,11 +107,36 @@ export const List = ({ comics, onEdit, onDelete, canEdit }) => {
 
       {/* Search Bar */}
       <div className="mb-6">
-        <label
-          className={`block mb-2 ${darkMode ? "text-green-400" : "text-gray-700"} font-bold`}
-        >
-          🔍 Search Comics
-        </label>
+        <div className="flex justify-between items-center mb-2">
+          <label
+            className={`block ${darkMode ? "text-green-400" : "text-gray-700"} font-bold`}
+          >
+            🔍 Search Comics
+          </label>
+          {canEdit && (
+            <div className="flex gap-1">
+              {['all', 'safe', 'nsfw'].map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => { setNsfwFilter(filter); setCurrentPage(1); }}
+                  className={`px-3 py-1 text-xs font-bold rounded-full border-2 transition-all ${
+                    nsfwFilter === filter
+                      ? filter === 'nsfw'
+                        ? 'border-red-500 bg-red-500 text-white shadow-sm shadow-red-500/50'
+                        : darkMode
+                        ? 'border-green-500 bg-green-500 text-black shadow-sm shadow-green-500/50'
+                        : 'border-green-600 bg-green-600 text-white shadow-sm shadow-green-600/50'
+                      : darkMode
+                      ? 'border-green-500/30 text-green-400 hover:bg-green-500/20'
+                      : 'border-gray-300 text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                  }`}
+                >
+                  {filter === 'all' ? 'All' : filter === 'safe' ? 'Safe' : '18+'}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <input
           type="text"
           value={searchQuery}
@@ -109,6 +168,8 @@ export const List = ({ comics, onEdit, onDelete, canEdit }) => {
             onEdit={onEdit}
             onDelete={onDelete}
             canEdit={canEdit}
+            sortConfig={sortConfig}
+            onSort={handleSort}
           />
           
           {/* Pagination Controls */}

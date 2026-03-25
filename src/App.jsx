@@ -6,6 +6,7 @@ import { useComics } from "./hooks/useComics";
 import { Navbar } from "./components/Navbar";
 import { Toast } from "./components/Toast";
 import { ModalDelete } from "./components/ModalDelete";
+import { ModalLogout } from "./components/ModalLogout";
 import { Home } from "./pages/Home";
 import { List } from "./pages/List";
 import { AddEdit } from "./pages/AddEdit";
@@ -21,6 +22,7 @@ const AppContent = () => {
   const [page, setPage] = useState("home");
   const [editingComic, setEditingComic] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [notification, setNotification] = useState(null);
 
   useEffect(() => {
@@ -136,13 +138,16 @@ const AppContent = () => {
     e.target.value = null;
   };
 
-  const handleSignOut = async () => {
-    if (window.confirm("Yakin ingin logout?")) {
-      const result = await signOut();
-      if (result.success) {
-        showNotification("Berhasil logout!", "success");
-        setPage("home");
-      }
+  const handleSignOut = () => {
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = async () => {
+    setShowLogoutModal(false);
+    const result = await signOut();
+    if (result.success) {
+      showNotification("Berhasil logout!", "success");
+      setPage("home");
     }
   };
 
@@ -175,6 +180,13 @@ const AppContent = () => {
         comic={showDeleteModal}
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteModal(null)}
+      />
+
+      {/* Logout Modal */}
+      <ModalLogout
+        isOpen={showLogoutModal}
+        onConfirm={confirmLogout}
+        onCancel={() => setShowLogoutModal(false)}
       />
 
       {/* Navbar with Logout */}

@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 
-export const ComicTable = ({ comics, onEdit, onDelete, canEdit }) => {
+export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSort }) => {
   const { darkMode } = useTheme();
 
   return (
     <div className="overflow-x-auto">
       <table
-        className={`w-full border-2 ${
+        className={`w-full table-fixed border-2 ${
           darkMode ? "border-green-500" : "border-gray-300"
         } rounded-lg overflow-hidden text-sm sm:text-base`}
       >
@@ -17,9 +17,39 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit }) => {
           }
         >
           <tr>
-            <th className="px-2 py-2 sm:px-4 sm:py-3 text-left w-1/2 sm:w-auto">Judul</th>
-            <th className="px-2 py-2 sm:px-4 sm:py-3 text-center w-1/4 sm:w-auto">Eps</th>
-            {canEdit && <th className="px-2 py-2 sm:px-4 sm:py-3 text-left w-1/4 sm:w-auto">Aksi</th>}
+            <th 
+              className={`px-2 py-2 sm:px-4 sm:py-3 text-left w-[50%] sm:w-[60%] cursor-pointer select-none transition-colors ${darkMode ? "hover:bg-green-600" : "hover:bg-gray-300"}`}
+              onClick={() => onSort && onSort('title')}
+            >
+              <div className="flex items-center gap-1">
+                <span>Judul</span>
+                <span className="inline-flex justify-center flex-shrink-0 w-3 sm:w-4">
+                  {sortConfig?.key === 'title' ? (
+                    <span className="text-[10px] sm:text-xs">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                  ) : (
+                    <span className="opacity-30 text-[10px] sm:text-xs">↕</span>
+                  )}
+                </span>
+              </div>
+            </th>
+            <th 
+              className={`px-2 py-2 sm:px-4 sm:py-3 text-center w-[20%] sm:w-[20%] cursor-pointer select-none transition-colors ${darkMode ? "hover:bg-green-600" : "hover:bg-gray-300"}`}
+              onClick={() => onSort && onSort('episode')}
+            >
+              <div className="flex items-center justify-center gap-1 w-full relative">
+                <span className="inline-block relative">
+                  Eps
+                  <span className="absolute -right-4 sm:-right-5 top-1/2 -translate-y-1/2 inline-flex justify-center flex-shrink-0 w-3 sm:w-4">
+                    {sortConfig?.key === 'episode' ? (
+                      <span className="text-[10px] sm:text-xs">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                    ) : (
+                      <span className="opacity-30 text-[10px] sm:text-xs">↕</span>
+                    )}
+                  </span>
+                </span>
+              </div>
+            </th>
+            {canEdit && <th className="px-2 py-2 sm:px-4 sm:py-3 text-left w-[30%] sm:w-[20%]">Aksi</th>}
           </tr>
         </thead>
         <tbody>

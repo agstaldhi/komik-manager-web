@@ -69,23 +69,61 @@ export const Home = ({ comics }) => {
             </p>
             
             {latestComic && (
-              <div className={`inline-block w-full sm:w-auto p-5 rounded-xl border-2 transition-all ${darkMode ? "border-green-500/50 bg-black/50 hover:bg-green-500/20" : "border-gray-200 bg-gray-50 hover:bg-gray-100"}`}>
-                <div className={`text-xs font-bold uppercase tracking-wider mb-2 ${darkMode ? "text-green-500" : "text-green-600"}`}>
+              <div className={`inline-block w-full p-5 rounded-xl border-2 transition-all ${darkMode ? "border-green-500/50 bg-black/50 hover:bg-green-500/20" : "border-gray-200 bg-gray-50 hover:bg-gray-100"}`}>
+                <div className={`text-xs font-bold uppercase tracking-wider mb-3 ${darkMode ? "text-green-500" : "text-green-600"}`}>
                   🔥 Terakhir Diperbarui
                 </div>
-                <a
-                  href={latestComic.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`text-2xl font-bold hover:underline mb-1 break-words block ${darkMode ? "text-green-300 hover:text-green-400" : "text-green-700 hover:text-green-600"}`}
-                >
-                  {latestComic.title}
-                  {latestComic.isNSFW && (
-                    <span className="ml-3 px-2 py-0.5 text-xs font-black align-middle rounded bg-red-500 text-white">18+</span>
+                <div className="flex gap-4 items-start">
+                  {latestComic.thumbnail ? (
+                    <img
+                      src={latestComic.thumbnail}
+                      alt={latestComic.title}
+                      className={`w-16 h-24 sm:w-20 sm:h-28 object-cover rounded-lg border-2 ${
+                        darkMode ? "border-green-500/30 shadow-green-500/20" : "border-gray-300"
+                      } shadow-md flex-shrink-0`}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "";
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className={`w-16 h-24 sm:w-20 sm:h-28 rounded-lg border-2 border-dashed flex-shrink-0 flex flex-col items-center justify-center shadow-inner ${
+                        darkMode
+                          ? "border-green-500/20 bg-green-500/5 text-green-400/40"
+                          : "border-gray-300 bg-gray-50 text-gray-400"
+                      }`}
+                    >
+                      <span className="text-2xl">📖</span>
+                    </div>
                   )}
-                </a>
-                <div className={`text-sm font-semibold mt-2 ${darkMode ? "text-green-400" : "text-gray-700"}`}>
-                  <span className="opacity-70">Episode</span> {latestComic.episode} <span className="opacity-50 mx-2">•</span> <span className="opacity-70">{formatDate(latestComic.updatedAt)}</span>
+                  <div className="min-w-0 flex-1 flex flex-col justify-between h-full">
+                    <div>
+                      <a
+                        href={latestComic.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`text-xl sm:text-2xl font-bold hover:underline mb-1 break-words block leading-snug ${darkMode ? "text-green-300 hover:text-green-400" : "text-green-700 hover:text-green-600"}`}
+                      >
+                        {(latestComic.title || "").split("|")[0].trim()}
+                        {latestComic.isNSFW && (
+                          <span className="ml-2 px-1.5 py-0.5 text-xs font-black align-middle rounded bg-red-500 text-white">18+</span>
+                        )}
+                      </a>
+                      {(latestComic.title || "").split("|").slice(1).length > 0 && (
+                        <div
+                          className={`text-xs italic leading-tight mt-1 mb-2 ${
+                            darkMode ? "text-green-400/50" : "text-gray-500"
+                          }`}
+                        >
+                          {(latestComic.title || "").split("|").slice(1).map(t => t.trim()).join(" • ")}
+                        </div>
+                      )}
+                    </div>
+                    <div className={`text-sm font-semibold mt-auto ${darkMode ? "text-green-400" : "text-gray-700"}`}>
+                      <span className="opacity-70">Episode</span> {latestComic.episode} <span className="opacity-50 mx-2">•</span> <span className="opacity-70 text-xs sm:text-sm">{formatDate(latestComic.updatedAt)}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -138,29 +176,75 @@ export const Home = ({ comics }) => {
                   href={comic.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`block px-5 py-6 rounded-xl border-2 h-full flex flex-col justify-between group transition-all duration-300 ${
+                  className={`block p-4 rounded-xl border-2 h-full flex flex-col justify-between group transition-all duration-300 ${
                     darkMode
                       ? "border-green-500/30 bg-black/40 hover:border-green-400 hover:bg-green-500/10 hover:-translate-y-1 hover:shadow-lg hover:shadow-green-500/20"
                       : "border-gray-300 bg-gray-50 hover:border-green-500 hover:bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-green-600/10"
                   }`}
                 >
-                  <div className="mb-4">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className={`font-bold text-lg leading-snug group-hover:underline break-words ${darkMode ? "text-green-300" : "text-green-700"}`} style={{ display: "-webkit-box", WebkitLineClamp: "2", WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                        {comic.title}
+                  <div className="flex gap-3 mb-4 items-start">
+                    {comic.thumbnail ? (
+                      <img
+                        src={comic.thumbnail}
+                        alt={comic.title}
+                        className={`w-14 h-20 sm:w-16 sm:h-24 object-cover rounded-lg border-2 ${
+                          darkMode ? "border-green-500/20 group-hover:border-green-500/50" : "border-gray-200 group-hover:border-gray-300"
+                        } shadow-md flex-shrink-0`}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "";
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className={`w-14 h-20 sm:w-16 sm:h-24 rounded-lg border-2 border-dashed flex-shrink-0 flex flex-col items-center justify-center shadow-inner ${
+                          darkMode
+                            ? "border-green-500/10 bg-green-500/5 text-green-400/30"
+                            : "border-gray-200 bg-gray-50 text-gray-400"
+                        }`}
+                      >
+                        <span className="text-xl">📖</span>
                       </div>
-                      {comic.isNSFW && (
-                        <span className={`shrink-0 px-2 py-1 text-[10px] uppercase font-black tracking-wider rounded ${darkMode ? "bg-red-500/20 text-red-400 border border-red-500/50" : "bg-red-500 text-white"}`}>18+</span>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-1 mb-1.5">
+                        <div
+                          className={`font-bold text-base leading-snug group-hover:underline break-words ${darkMode ? "text-green-300" : "text-green-700"}`}
+                          style={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: "2",
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            wordBreak: "break-word"
+                          }}
+                        >
+                          {(comic.title || "").split("|")[0].trim()}
+                        </div>
+                        {comic.isNSFW && (
+                          <span className={`shrink-0 px-1.5 py-0.5 text-[8px] sm:text-[9px] uppercase font-black tracking-wider rounded ${darkMode ? "bg-red-500/20 text-red-400 border border-red-500/50" : "bg-red-500 text-white"}`}>18+</span>
+                        )}
+                      </div>
+                      
+                      {(comic.title || "").split("|").slice(1).length > 0 && (
+                        <div
+                          className={`text-[10px] italic leading-tight mb-2 truncate ${
+                            darkMode ? "text-green-400/40" : "text-gray-500"
+                          }`}
+                          title={(comic.title || "").split("|").slice(1).map(t => t.trim()).join(" • ")}
+                        >
+                          {(comic.title || "").split("|").slice(1).map(t => t.trim()).join(" • ")}
+                        </div>
                       )}
-                    </div>
-                    <div className={`inline-block px-3 py-1 rounded-md text-sm font-bold ${darkMode ? "bg-green-500/20 text-green-400" : "bg-green-100 text-green-700"}`}>
-                      Episode {comic.episode}
+                      
+                      <div className={`inline-block px-2.5 py-0.5 rounded-md text-xs font-bold ${darkMode ? "bg-green-500/20 text-green-400" : "bg-green-100 text-green-700"}`}>
+                        Episode {comic.episode}
+                      </div>
                     </div>
                   </div>
                   
-                  <div className={`flex items-center justify-between text-xs mt-auto pt-4 border-t-2 ${darkMode ? "border-green-500/20 text-green-300/70" : "border-gray-200 text-gray-500"}`}>
+                  <div className={`flex items-center justify-between text-[11px] mt-auto pt-3 border-t-2 ${darkMode ? "border-green-500/10 text-green-300/50" : "border-gray-200 text-gray-500"}`}>
                     <span>{formatDate(comic.updatedAt)}</span>
-                    <span className={`text-xl transform outline-none transition-transform duration-300 group-hover:translate-x-2 ${darkMode ? "text-green-400" : "text-green-600"}`}>
+                    <span className={`text-lg transform outline-none transition-transform duration-300 group-hover:translate-x-2 ${darkMode ? "text-green-400" : "text-green-600"}`}>
                       →
                     </span>
                   </div>

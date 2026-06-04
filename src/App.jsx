@@ -25,6 +25,12 @@ const AppContent = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [notification, setNotification] = useState(null);
 
+  // States to retain List page pagination/filter when navigating away (e.g. to AddEdit)
+  const [listPage, setListPage] = useState(1);
+  const [listSearch, setListSearch] = useState("");
+  const [listNsfwFilter, setListNsfwFilter] = useState("all");
+  const [listSortConfig, setListSortConfig] = useState({ key: null, direction: 'asc' });
+
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.remove("light-mode");
@@ -72,6 +78,7 @@ const AppContent = () => {
         episode: parseInt(formData.episode),
         link: formData.link,
         isNSFW: formData.isNSFW || false, // ⬅️ Support NSFW
+        thumbnail: formData.thumbnail || "", // ⬅️ Support thumbnail
       });
     } else {
       result = await addComic({
@@ -79,6 +86,7 @@ const AppContent = () => {
         episode: parseInt(formData.episode),
         link: formData.link,
         isNSFW: formData.isNSFW || false, // ⬅️ Support NSFW
+        thumbnail: formData.thumbnail || "", // ⬅️ Support thumbnail
       });
     }
 
@@ -209,7 +217,15 @@ const AppContent = () => {
               comics={comics}
               onEdit={handleEdit}
               onDelete={setShowDeleteModal}
-              canEdit={canEdit} // ⬅️ Pass canEdit prop
+              canEdit={canEdit}
+              currentPage={listPage}
+              setCurrentPage={setListPage}
+              searchQuery={listSearch}
+              setSearchQuery={setListSearch}
+              nsfwFilter={listNsfwFilter}
+              setNsfwFilter={setListNsfwFilter}
+              sortConfig={listSortConfig}
+              setSortConfig={setListSortConfig}
             />
           )}
 

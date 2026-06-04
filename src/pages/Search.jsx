@@ -72,24 +72,67 @@ export const Search = ({ comics, initialQuery = "" }) => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.05 }}
-            className={`p-6 rounded-lg border-2 ${
+            className={`p-4 rounded-lg border-2 flex gap-4 items-start ${
               darkMode
                 ? "border-green-500/50 bg-black/30 hover:border-green-500 hover:shadow-lg hover:shadow-green-500/20"
                 : "border-gray-300 bg-white hover:border-green-500"
             } transition-all`}
           >
-            <a
-              href={comic.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`text-2xl font-bold hover:underline block mb-2 ${
-                darkMode ? "text-green-400" : "text-green-600"
-              }`}
-            >
-              {highlightText(comic.title, searchQuery)}
-            </a>
-            <div className={darkMode ? "text-green-300" : "text-gray-700"}>
-              Episode: {comic.episode}
+            {comic.thumbnail ? (
+              <img
+                src={comic.thumbnail}
+                alt={comic.title}
+                className={`w-14 h-20 sm:w-16 sm:h-24 object-cover rounded-lg border-2 ${
+                  darkMode ? "border-green-500/30 shadow-green-500/10" : "border-gray-300"
+                } shadow-md flex-shrink-0`}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "";
+                }}
+              />
+            ) : (
+              <div
+                className={`w-14 h-20 sm:w-16 sm:h-24 rounded-lg border-2 border-dashed flex-shrink-0 flex flex-col items-center justify-center shadow-inner ${
+                  darkMode
+                    ? "border-green-500/20 bg-green-500/5 text-green-400/40"
+                    : "border-gray-300 bg-gray-50 text-gray-400"
+                }`}
+              >
+                <span className="text-xl">📖</span>
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <a
+                href={comic.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`text-xl sm:text-2xl font-bold hover:underline block break-words whitespace-normal leading-snug mb-1 ${
+                  darkMode ? "text-green-400" : "text-green-600"
+                }`}
+                style={{ wordBreak: 'break-word' }}
+              >
+                {highlightText((comic.title || "").split("|")[0].trim(), searchQuery)}
+                {comic.isNSFW && (
+                  <span className="inline-block ml-2 px-1.5 py-0.5 text-xs font-black align-middle rounded bg-red-500 text-white">
+                    18+
+                  </span>
+                )}
+              </a>
+              {(comic.title || "").split("|").slice(1).length > 0 && (
+                <div
+                  className={`text-xs sm:text-sm italic mt-1 leading-tight break-words mb-2 ${
+                    darkMode ? "text-green-400/50" : "text-gray-500"
+                  }`}
+                >
+                  {highlightText(
+                    (comic.title || "").split("|").slice(1).map((t) => t.trim()).join(" • "),
+                    searchQuery
+                  )}
+                </div>
+              )}
+              <div className={`inline-block px-2.5 py-0.5 rounded-md text-xs font-bold ${darkMode ? "bg-green-500/20 text-green-400" : "bg-green-100 text-green-700"}`}>
+                Episode: {comic.episode}
+              </div>
             </div>
           </motion.div>
         ))}

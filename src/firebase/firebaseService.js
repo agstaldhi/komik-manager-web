@@ -46,6 +46,7 @@ export const getAllComics = async () => {
         ...data,
         updatedAt: normalizeTimestamp(data.updatedAt),
         isNSFW: data.isNSFW || false, // Ensure isNSFW exists
+        thumbnail: data.thumbnail || "", // Normalize thumbnail field
       });
     });
 
@@ -119,6 +120,7 @@ export const bulkUploadComics = async (comicsArray) => {
         episode: parseInt(comic.episode),
         link: comic.link,
         isNSFW: comic.isNSFW || false,
+        thumbnail: comic.thumbnail || "",
         updatedAt: now,
       }),
     );

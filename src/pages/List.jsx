@@ -1,18 +1,48 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext"; // ⬅️ Import useAuth
 import { ComicTable } from "../components/ComicTable";
 
-export const List = ({ comics, onEdit, onDelete, canEdit }) => {
+export const List = ({
+  comics,
+  onEdit,
+  onDelete,
+  canEdit,
+  currentPage: propCurrentPage,
+  setCurrentPage: propSetCurrentPage,
+  searchQuery: propSearchQuery,
+  setSearchQuery: propSetSearchQuery,
+  nsfwFilter: propNsfwFilter,
+  setNsfwFilter: propSetNsfwFilter,
+  sortConfig: propSortConfig,
+  setSortConfig: propSetSortConfig,
+}) => {
   const { darkMode } = useTheme();
-  // We can remove showNSFW from useAuth here since useComics already filtered it based on showNSFW.
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [nsfwFilter, setNsfwFilter] = useState("all");
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
+  // Local fallback states if props are not provided
+  const [localSearchQuery, setLocalSearchQuery] = useState("");
+  const [localCurrentPage, setLocalCurrentPage] = useState(1);
+  const [localNsfwFilter, setLocalNsfwFilter] = useState("all");
+  const [localSortConfig, setLocalSortConfig] = useState({ key: null, direction: 'asc' });
+
+  // Map to props or fallback to local state
+  const searchQuery = propSearchQuery !== undefined ? propSearchQuery : localSearchQuery;
+  const setSearchQuery = propSetSearchQuery !== undefined ? propSetSearchQuery : setLocalSearchQuery;
+  const currentPage = propCurrentPage !== undefined ? propCurrentPage : localCurrentPage;
+  const setCurrentPage = propSetCurrentPage !== undefined ? propSetCurrentPage : setLocalCurrentPage;
+  const nsfwFilter = propNsfwFilter !== undefined ? propNsfwFilter : localNsfwFilter;
+  const setNsfwFilter = propSetNsfwFilter !== undefined ? propSetNsfwFilter : setLocalNsfwFilter;
+  const sortConfig = propSortConfig !== undefined ? propSortConfig : localSortConfig;
+  const setSortConfig = propSetSortConfig !== undefined ? propSetSortConfig : setLocalSortConfig;
+
   const itemsPerPage = 20;
+
+  // Auto scroll to top of window when page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
 
   const handleSort = (key) => {
     let direction = 'asc';

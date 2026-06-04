@@ -66,24 +66,60 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSo
               } transition-colors`}
             >
               <td className="px-2 py-2 sm:px-4 sm:py-3 align-middle">
-                <a
-                  href={comic.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`hover:underline block break-words whitespace-normal min-w-0 ${
-                    darkMode
-                      ? "text-green-400 hover:text-green-300"
-                      : "text-green-600 hover:text-green-700"
-                  }`}
-                  style={{ wordBreak: 'break-word' }}
-                >
-                  {comic.title}
-                  {comic.isNSFW && (
-                    <span className="inline-block ml-1 px-1.5 py-0.5 text-[10px] sm:text-xs font-bold rounded bg-red-500 text-white align-middle">
-                      18+
-                    </span>
+                <div className="flex items-center">
+                  {comic.thumbnail ? (
+                    <img
+                      src={comic.thumbnail}
+                      alt={comic.title}
+                      className={`w-12 h-16 sm:w-14 sm:h-20 object-cover rounded-lg border-2 ${
+                        darkMode ? "border-green-500/30 shadow-green-500/10" : "border-gray-300"
+                      } shadow-md flex-shrink-0 mr-3`}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "";
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className={`w-12 h-16 sm:w-14 sm:h-20 rounded-lg border-2 border-dashed flex-shrink-0 mr-3 flex flex-col items-center justify-center shadow-inner ${
+                        darkMode
+                          ? "border-green-500/20 bg-green-500/5 text-green-400/50"
+                          : "border-gray-300 bg-gray-50 text-gray-400"
+                      }`}
+                    >
+                      <span className="text-xl sm:text-2xl">📖</span>
+                    </div>
                   )}
-                </a>
+                  <div className="min-w-0 flex-1">
+                    <a
+                      href={comic.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`hover:underline font-bold block break-words whitespace-normal leading-snug ${
+                        darkMode
+                          ? "text-green-300 hover:text-green-200"
+                          : "text-green-700 hover:text-green-800"
+                      }`}
+                      style={{ wordBreak: 'break-word' }}
+                    >
+                      {(comic.title || "").split("|")[0].trim()}
+                      {comic.isNSFW && (
+                        <span className="inline-block ml-2 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-black tracking-wider rounded bg-red-500 text-white align-middle">
+                          18+
+                        </span>
+                      )}
+                    </a>
+                    {(comic.title || "").split("|").slice(1).length > 0 && (
+                      <div
+                        className={`text-[11px] sm:text-xs italic mt-1 leading-tight break-words ${
+                          darkMode ? "text-green-400/50" : "text-gray-500"
+                        }`}
+                      >
+                        {(comic.title || "").split("|").slice(1).map(t => t.trim()).join(" • ")}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </td>
               <td className="px-2 py-2 sm:px-4 sm:py-3 text-center align-middle">{comic.episode}</td>
               {canEdit && (

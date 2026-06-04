@@ -5,28 +5,53 @@ import { useTheme } from "../context/ThemeContext";
 export const AddEdit = ({ editingComic, onSave, onCancel, onUploadJSON }) => {
   const { darkMode } = useTheme();
   const [formData, setFormData] = useState({
-    title: "",
+    mainTitle: "",
+    altTitles: [],
     episode: "",
     link: "",
-    isNSFW: false, // ⬅️ Add NSFW field
+    isNSFW: false,
+    thumbnail: "",
   });
 
   useEffect(() => {
     if (editingComic) {
+      const titleParts = (editingComic.title || "").split("|").map((t) => t.trim());
+      const mainTitle = titleParts[0] || "";
+      const altTitles = titleParts.slice(1);
       setFormData({
-        title: editingComic.title,
-        episode: editingComic.episode,
-        link: editingComic.link,
-        isNSFW: editingComic.isNSFW || false, // ⬅️ Load NSFW value
+        mainTitle,
+        altTitles,
+        episode: editingComic.episode || "",
+        link: editingComic.link || "",
+        isNSFW: editingComic.isNSFW || false,
+        thumbnail: editingComic.thumbnail || "",
       });
     } else {
-      setFormData({ title: "", episode: "", link: "", isNSFW: false });
+      setFormData({
+        mainTitle: "",
+        altTitles: [],
+        episode: "",
+        link: "",
+        isNSFW: false,
+        thumbnail: "",
+      });
     }
   }, [editingComic]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    const cleanAltTitles = formData.altTitles
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
+    const fullTitle = [formData.mainTitle.trim(), ...cleanAltTitles].join(" | ");
+
+    onSave({
+      title: fullTitle,
+      episode: formData.episode,
+      link: formData.link,
+      isNSFW: formData.isNSFW,
+      thumbnail: formData.thumbnail.trim(),
+    });
   };
 
   const pageVariants = {
@@ -89,9 +114,9 @@ export const AddEdit = ({ editingComic, onSave, onCancel, onUploadJSON }) => {
               </label>
               <input
                 type="text"
-                value={formData.title}
+                value={formData.mainTitle}
                 onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
+                  setFormData({ ...formData, mainTitle: e.target.value })
                 }
                 className={`w-full px-4 py-3 rounded-xl border-2 ${
                   darkMode
@@ -101,6 +126,60 @@ export const AddEdit = ({ editingComic, onSave, onCancel, onUploadJSON }) => {
                 placeholder="Contoh: Solo Leveling..."
                 required
               />
+              
+              {/* Alt Titles Input List */}
+              <div className="mt-3 space-y-2">
+                {formData.altTitles.map((altTitle, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={altTitle}
+                      onChange={(e) => {
+                        const newAltTitles = [...formData.altTitles];
+                        newAltTitles[index] = e.target.value;
+                        setFormData({ ...formData, altTitles: newAltTitles });
+                      }}
+                      className={`flex-1 px-4 py-2 rounded-xl border-2 ${
+                        darkMode
+                          ? "border-green-500/30 bg-black/40 text-green-400 focus:border-green-400"
+                          : "border-gray-300 bg-gray-50 text-gray-800 focus:border-green-500 focus:bg-white"
+                      } outline-none transition-all text-sm`}
+                      placeholder={`Judul Alternatif #${index + 1}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newAltTitles = formData.altTitles.filter((_, i) => i !== index);
+                        setFormData({ ...formData, altTitles: newAltTitles });
+                      }}
+                      className="p-2.5 rounded-xl border-2 border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                      title="Hapus judul alternatif"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                
+                {/* Tombol Add Alt Title */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({ ...formData, altTitles: [...formData.altTitles, ""] });
+                  }}
+                  className={`px-3 py-1.5 flex items-center gap-1 text-xs font-bold rounded-lg border-2 transition-all ${
+                    darkMode
+                      ? "border-green-500/30 text-green-400 hover:bg-green-500/10"
+                      : "border-gray-300 text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Add Alt Title</span>
+                </button>
+              </div>
             </div>
 
             {/* Episode (4 Kolom di Desktop) */}
@@ -147,6 +226,66 @@ export const AddEdit = ({ editingComic, onSave, onCancel, onUploadJSON }) => {
                 placeholder="https://..."
                 required
               />
+            </div>
+
+            {/* Link Thumbnail (8 Kolom di Desktop) */}
+            <div className="md:col-span-8 col-span-1">
+              <label
+                className={`block mb-2 font-bold ${darkMode ? "text-green-400" : "text-gray-700"}`}
+              >
+                Link URL Thumbnail (Cover)
+              </label>
+              <input
+                type="url"
+                value={formData.thumbnail}
+                onChange={(e) =>
+                  setFormData({ ...formData, thumbnail: e.target.value })
+                }
+                className={`w-full px-4 py-3 rounded-xl border-2 ${
+                  darkMode
+                    ? "border-green-500/50 bg-black/50 text-green-400 focus:border-green-400 focus:shadow-lg focus:shadow-green-500/30"
+                    : "border-gray-300 bg-gray-50 text-gray-800 focus:border-green-500 focus:bg-white"
+                } outline-none transition-all`}
+                placeholder="https://example.com/cover.jpg..."
+              />
+              <span className={`text-xs mt-1 block ${darkMode ? "text-green-500/60" : "text-gray-500"}`}>
+                Kosongkan jika ingin menggunakan cover default/placeholder.
+              </span>
+            </div>
+
+            {/* Preview Thumbnail (4 Kolom di Desktop) */}
+            <div className="md:col-span-4 col-span-1 flex flex-col justify-end">
+              <label
+                className={`block mb-2 font-bold ${darkMode ? "text-green-400" : "text-gray-700"}`}
+              >
+                Preview Cover
+              </label>
+              <div
+                className={`h-[120px] w-[90px] rounded-lg border-2 border-dashed flex items-center justify-center overflow-hidden transition-all duration-300 ${
+                  formData.thumbnail
+                    ? "border-green-500/50 shadow-md shadow-green-500/10"
+                    : darkMode
+                    ? "border-green-500/20 bg-black/20 text-green-500/40"
+                    : "border-gray-300 bg-gray-50 text-gray-400"
+                }`}
+              >
+                {formData.thumbnail ? (
+                  <img
+                    src={formData.thumbnail}
+                    alt="Preview Cover"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "";
+                    }}
+                  />
+                ) : (
+                  <div className="text-center p-2 flex flex-col items-center justify-center">
+                    <span className="text-2xl mb-1">📖</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider">No Cover</span>
+                  </div>
+                )}
+              </div>
             </div>
             
           </div>

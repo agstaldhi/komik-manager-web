@@ -36,3 +36,6 @@ build/
 .firebaserc
 firebase-debug.log
 firestore-debug.log
+
+# Local backup files
+comics_backup.json

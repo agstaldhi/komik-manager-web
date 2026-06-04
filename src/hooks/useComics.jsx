@@ -26,7 +26,7 @@ export const useComics = (showNSFW = false) => {
 
       setComics(filtered);
     } catch (err) {
-      setError("Gagal memuat data dari Firestore");
+      setError("Gagal memuat data dari Supabase");
       console.error(err);
     } finally {
       setLoading(false);

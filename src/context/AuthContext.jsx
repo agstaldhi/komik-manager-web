@@ -1,12 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  signInAnonymously,
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
-} from "firebase/auth";
-import { auth } from "../firebase/firebase";
+import { supabase } from "../supabase/supabase";
 
 const AuthContext = createContext();
 
@@ -16,10 +9,11 @@ export const AuthProvider = ({ children }) => {
   const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        setIsGuest(currentUser.isAnonymous);
+    // 1. Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user);
+        setIsGuest(session.user.is_anonymous || false);
       } else {
         setUser(null);
         setIsGuest(false);
@@ -27,40 +21,57 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    // 2. Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        setIsGuest(session.user.is_anonymous || false);
+      } else {
+        setUser(null);
+        setIsGuest(false);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  // Google Sign In
+  // Google Sign In (Supabase OAuth Redirect)
   const signInWithGoogle = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
-      setIsGuest(false);
-      return { success: true, user: result.user };
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+      if (error) throw error;
+      return { success: true };
     } catch (error) {
       console.error("Error signing in with Google:", error);
       return { success: false, error: error.message };
     }
   };
 
-  // Guest Mode (Anonymous)
+  // Guest Mode (Supabase Anonymous Sign In)
   const signInAsGuest = async () => {
     try {
-      const result = await signInAnonymously(auth);
-      setUser(result.user);
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+      setUser(data.user);
       setIsGuest(true);
-      return { success: true, user: result.user };
+      return { success: true, user: data.user };
     } catch (error) {
       console.error("Error signing in as guest:", error);
       return { success: false, error: error.message };
     }
   };
 
-  // Sign Out
+  // Sign Out (Supabase)
   const signOut = async () => {
     try {
-      await firebaseSignOut(auth);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       setUser(null);
       setIsGuest(false);
       return { success: true };
@@ -74,9 +85,9 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     isGuest,
-    isAuthenticated: !!user && !user.isAnonymous, // True jika login dengan Google
-    canEdit: !!user && !user.isAnonymous, // Hanya user authenticated bisa edit
-    showNSFW: !!user && !user.isAnonymous, // Hanya user authenticated bisa lihat NSFW
+    isAuthenticated: !!user && !user.is_anonymous, // True jika login dengan Google
+    canEdit: !!user && !user.is_anonymous, // Hanya user authenticated bisa edit
+    showNSFW: !!user && !user.is_anonymous, // Hanya user authenticated bisa lihat NSFW
     signInWithGoogle,
     signInAsGuest,
     signOut,

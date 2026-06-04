@@ -5,7 +5,7 @@ import {
   updateComic as updateComicDB,
   deleteComic as deleteComicDB,
   bulkUploadComics as bulkUploadDB,
-} from "../firebase/firebaseService";
+} from "../supabase/supabaseService";
 
 export const useComics = (showNSFW = false) => {
   const [allComics, setAllComics] = useState([]); // ⬅️ Store ALL comics

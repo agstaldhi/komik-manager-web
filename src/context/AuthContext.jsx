@@ -81,13 +81,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+  const isAdmin = !!user && !user.is_anonymous && user.email === adminEmail;
+
   const value = {
     user,
     loading,
     isGuest,
-    isAuthenticated: !!user && !user.is_anonymous, // True jika login dengan Google
-    canEdit: !!user && !user.is_anonymous, // Hanya user authenticated bisa edit
-    showNSFW: !!user && !user.is_anonymous, // Hanya user authenticated bisa lihat NSFW
+    isAuthenticated: isAdmin, // True jika login sebagai admin Google
+    canEdit: isAdmin, // Hanya admin Google bisa edit
+    showNSFW: isAdmin, // Hanya admin Google bisa lihat NSFW
     signInWithGoogle,
     signInAsGuest,
     signOut,

@@ -39,6 +39,13 @@ export const List = ({
 
   const itemsPerPage = 20;
 
+  const [pageInput, setPageInput] = useState(currentPage.toString());
+
+  // Keep input field value in sync with currentPage
+  useEffect(() => {
+    setPageInput(currentPage.toString());
+  }, [currentPage]);
+
   // Auto scroll to top of window when page changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -220,8 +227,27 @@ export const List = ({
                 >
                   <ChevronLeft size={18} /> Prev
                 </button>
-                <div className="flex gap-1">
-                  {/* Quick page numbers logic can be added here if needed, keeping it simple for now */}
+                <div className="flex items-center gap-1 text-sm mx-2">
+                  <span className={darkMode ? "text-green-400" : "text-gray-600"}>Lompat ke:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max={totalPages}
+                    value={pageInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setPageInput(val);
+                      const num = parseInt(val, 10);
+                      if (num >= 1 && num <= totalPages) {
+                        setCurrentPage(num);
+                      }
+                    }}
+                    className={`w-14 px-2 py-1 text-center font-bold rounded border-2 ${
+                      darkMode
+                        ? "border-green-500 bg-black text-green-400 focus:border-green-400"
+                        : "border-gray-300 bg-white text-gray-800 focus:border-green-500"
+                    } outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+                  />
                 </div>
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}

@@ -68,6 +68,7 @@ const AppContent = () => {
     if (editingComic) {
       result = await updateComic(editingComic.id, {
         title: formData.title,
+        alternativeTitles: formData.alternativeTitles || [],
         episode: parseInt(formData.episode),
         link: formData.link,
         isNSFW: formData.isNSFW || false,
@@ -76,6 +77,7 @@ const AppContent = () => {
     } else {
       result = await addComic({
         title: formData.title,
+        alternativeTitles: formData.alternativeTitles || [],
         episode: parseInt(formData.episode),
         link: formData.link,
         isNSFW: formData.isNSFW || false,

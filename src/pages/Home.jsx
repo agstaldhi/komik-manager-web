@@ -299,7 +299,7 @@ export const Home = ({ comics, onNavigate }) => {
 
         {/* Character Popout Image (Placed as a sibling to avoid backdrop-filter clipping) */}
         <div 
-          className="absolute bottom-0 right-0 w-[45%] h-[112%] hidden lg:block z-20 select-none pointer-events-none"
+          className="absolute bottom-0 right-0 w-[45%] h-[125%] hidden lg:block z-20 select-none pointer-events-none"
           style={{
             WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 15%, black 100%), linear-gradient(to right, transparent 0%, black 15%)",
             maskImage: "linear-gradient(to top, transparent 0%, black 15%, black 100%), linear-gradient(to right, transparent 0%, black 15%)",
@@ -312,7 +312,7 @@ export const Home = ({ comics, onNavigate }) => {
               key={activeCharIndex}
               src={activeChar.image}
               alt={activeChar.name}
-              className="absolute bottom-0 right-8 w-auto h-[112%] object-contain object-bottom will-change-transform drop-shadow-[0_20px_35px_rgba(0,0,0,0.3)]"
+              className="absolute bottom-0 right-8 w-auto h-full object-contain object-bottom will-change-transform drop-shadow-[0_20px_35px_rgba(0,0,0,0.3)]"
               initial={{ opacity: 0, scale: 0.9, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 30 }}

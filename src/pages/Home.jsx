@@ -13,6 +13,11 @@ import rimuru from "../assets/Rimuru Tempest.webp";
 import jinwoo from "../assets/Sung Jin Woo.webp";
 import killua from "../assets/Killua.webp";
 import saitama from "../assets/Saitama.webp";
+import ichigo from "../assets/Ichigo Kurosaki.webp";
+import meliodas from "../assets/Meliodas.webp";
+import natsu from "../assets/Natsu Dragneel.webp";
+import naruto from "../assets/Uzumaki Naruto.webp";
+import itachi from "../assets/Uciha Itachi.webp";
 
 const CHARACTERS = [
   {
@@ -29,7 +34,7 @@ const CHARACTERS = [
   {
     name: "Rimuru Tempest",
     anime: "Reincarnated as a Slime",
-    desc: "“I'm not a bad slime, you know! Let's build a nation where everyone, humans and monsters alike, can live in peaceful harmony.”",
+    desc: "“Di dunia yang kejam ini, apa jadinya keadilan tanpa adanya kekuatan?”",
     image: rimuru,
     gradient: "from-sky-500/25 via-cyan-500/20 to-blue-500/25",
     glow: "shadow-sky-500/20 dark:shadow-sky-500/20",
@@ -40,7 +45,7 @@ const CHARACTERS = [
   {
     name: "Monkey D. Luffy",
     anime: "One Piece",
-    desc: "“I'm going to be the Pirate King! If you don't take risks, you can't create a future! I don't want to conquer anything, I just want to be free.”",
+    desc: "“Jika kau tidak mengambil risiko, kau tidak akan pernah bisa menciptakan masa depan.”",
     image: luffy,
     gradient: "from-orange-500/25 via-amber-500/20 to-red-500/25",
     glow: "shadow-orange-500/20 dark:shadow-orange-500/20",
@@ -51,7 +56,7 @@ const CHARACTERS = [
   {
     name: "Sung Jin Woo",
     anime: "Solo Leveling",
-    desc: "“Arise. From this moment on, you shall serve me as my shadows. If the system wants me to kill, I will kill. If I have to become a monster, I will.”",
+    desc: "“Kau harus berhasil dulu baru bisa dihargai. Terkesan kejam tapi dunia butuh pembuktian.”",
     image: jinwoo,
     gradient: "from-purple-800/25 via-indigo-950/20 to-slate-900/25",
     glow: "shadow-purple-700/20 dark:shadow-purple-500/20",
@@ -62,7 +67,7 @@ const CHARACTERS = [
   {
     name: "Ken Kaneki",
     anime: "Tokyo Ghoul",
-    desc: "“What's wrong isn't me... what's wrong is this world. If you write a story with me in the lead, it would certainly be a tragedy.”",
+    desc: "“Jangan menghancurkan hati seseorang, mereka hanya memilikinya satu. Hancurkan saja tulang mereka, manusia memiliki 206 tulang.”",
     image: kaneki,
     gradient: "from-red-600/25 via-zinc-800/20 to-neutral-900/25",
     glow: "shadow-red-500/20 dark:shadow-red-500/20",
@@ -73,7 +78,7 @@ const CHARACTERS = [
   {
     name: "Nezuko Kamado",
     anime: "Demon Slayer",
-    desc: "“Mmh! Mmh! (Humans are to be protected and saved... I will never hurt them, and I will protect Tanjiro and everyone no matter what!)”",
+    desc: "“Ma... mamoru!”",
     image: nezuko,
     gradient: "from-rose-500/25 via-pink-500/20 to-rose-400/25",
     glow: "shadow-rose-500/20 dark:shadow-rose-500/20",
@@ -84,7 +89,7 @@ const CHARACTERS = [
   {
     name: "Killua Zoldyck",
     anime: "Hunter x Hunter",
-    desc: "“If I ignore a friend I have the ability to help, wouldn't I be betraying him? Gon... you are light itself. Sometimes, you shine so brightly, I must look away.”",
+    desc: "“Jika aku mengabaikan seorang teman yang sebenarnya bisa kubantu, bukankah itu sama saja dengan mengkhianatinya?”",
     image: killua,
     gradient: "from-indigo-500/25 via-blue-500/20 to-slate-400/25",
     glow: "shadow-indigo-500/20 dark:shadow-indigo-500/20",
@@ -95,13 +100,68 @@ const CHARACTERS = [
   {
     name: "Saitama",
     anime: "One Punch Man",
-    desc: "“I'm just a guy who's a hero for fun. In exchange for gaining this power, have I lost something essential to being human? One punch is all it takes.”",
+    desc: "“Jika kau benar-benar ingin menjadi kuat, berhentilah mempedulikan apa yang dipikirkan orang lain.”",
     image: saitama,
     gradient: "from-yellow-500/20 via-amber-600/15 to-red-500/20",
     glow: "shadow-yellow-500/20 dark:shadow-yellow-500/20",
     border: "border-yellow-400/30 dark:border-yellow-400/50",
     textColor: "text-yellow-600 dark:text-yellow-400",
     accentBg: "bg-yellow-500",
+  },
+   {
+    name: "Naruto Uzumaki",
+    anime: "Naruto Shippuden",
+    desc: "“Takdir manusia mungkin sudah ditentukan sejak mereka lahir, tetapi dengan bekerja keras kita bisa mengalahkan takdir itu!”",
+    image: naruto,
+    gradient: "from-yellow-500/20 via-amber-600/15 to-red-500/20",
+    glow: "shadow-yellow-500/20 dark:shadow-yellow-500/20",
+    border: "border-yellow-400/30 dark:border-yellow-400/50",
+    textColor: "text-yellow-600 dark:text-yellow-400",
+    accentBg: "bg-yellow-500",
+  },
+   {
+    name: "Ichigo Kurosaki",
+    anime: "Bleach",
+    desc: "“Aku tidak bertarung karena kupikir aku bisa menang. Aku bertarung karena aku harus menang.”",
+    image: ichigo,
+    gradient: "from-orange-500/20 via-amber-600/15 to-orange-500/20",
+    glow: "shadow-orange-500/20 dark:shadow-orange-500/20",
+    border: "border-orange-400/30 dark:border-orange-400/50",
+    textColor: "text-orange-600 dark:text-orange-400",
+    accentBg: "bg-orange-500",
+  },
+   {
+    name: "Meliodas",
+    anime: "Seven Deadly Sins",
+    desc: "“Setiap orang pasti akan mati suatu hari nanti. Tetapi apa yang mereka yakini tidak akan pernah pudar selama ada seseorang yang melindunginya.”",
+    image: meliodas,
+    gradient: "from-yellow-500/20 via-amber-600/15 to-yellow-500/20",
+    glow: "shadow-yellow-500/20 dark:shadow-yellow-500/20",
+    border: "border-yellow-400/30 dark:border-yellow-400/50",
+    textColor: "text-yellow-600 dark:text-yellow-400",
+    accentBg: "bg-yellow-500",
+  },
+   {
+    name: "Natsu Dragneel",
+    anime: "Fairy Tail",
+    desc: "“JAlasan kita di sini adalah untuk hidup, untuk mengalami masa-masa indah, dan untuk saling membantu.”",
+    image: natsu,
+    gradient: "from-yellow-500/20 via-amber-600/15 to-red-500/20",
+    glow: "shadow-yellow-500/20 dark:shadow-yellow-500/20",
+    border: "border-yellow-400/30 dark:border-yellow-400/50",
+    textColor: "text-yellow-600 dark:text-yellow-400",
+    accentBg: "bg-yellow-500",
+  },
+   {
+    name: "Uciha Itachi",
+    anime: "Naruto Shippuden",
+    desc: "“Tidak apa-apa jika kau tak pernah memaafkanku, tetapi apa pun yang kau jadi, aku akan selalu mencintaimu.”",
+    image: itachi,
+    gradient: "from-red-500/20 via-amber-600/15 to-indigo-500/20",
+    glow: "shadow-red-500/20 dark:shadow-red-500/20",
+    border: "border-red-400/30 dark:border-red-400/50",
+    textColor: "text-red-600 dark:text-red-400",
+    accentBg: "bg-red-500",
   }
 ];
 

@@ -86,7 +86,7 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSo
                         className="hover:underline font-extrabold text-sm sm:text-base text-zinc-800 dark:text-zinc-100 break-words whitespace-normal leading-snug hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
                         style={{ wordBreak: 'break-word' }}
                       >
-                        {(comic.title || "").split("|")[0].trim()}
+                                              {comic.title}
                       </a>
                       {comic.isNSFW && (
                         <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] uppercase font-black tracking-wider rounded bg-red-500 text-white flex-shrink-0">
@@ -95,9 +95,9 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSo
                       )}
                     </div>
                     
-                    {(comic.title || "").split("|").slice(1).length > 0 && (
+                    {comic.alternativeTitles && comic.alternativeTitles.length > 0 && (
                       <div className="text-[10px] sm:text-xs italic text-zinc-400 dark:text-zinc-500 mt-1 leading-tight break-words">
-                        {(comic.title || "").split("|").slice(1).map(t => t.trim()).join(" • ")}
+                        {comic.alternativeTitles.join(" • ")}
                       </div>
                     )}
                   </div>

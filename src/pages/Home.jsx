@@ -370,7 +370,7 @@ export const Home = ({ comics, onNavigate }) => {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="font-bold text-sm text-zinc-800 dark:text-zinc-200 truncate group-hover:underline">
-                        {(comic.title || "").split("|")[0].trim()}
+                        {comic.title}
                       </div>
                       {comic.isNSFW && (
                         <span className="px-1 py-0.5 text-[8px] font-black rounded bg-red-500 text-white flex-shrink-0">

@@ -34,29 +34,51 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
     addLog("info", "Logs cleared.");
   };
 
+  // CSV line parser (handles commas inside quotes, empty values, and escaped quotes)
+  const parseCSVLine = (line) => {
+    const result = [];
+    let insideQuote = false;
+    let entry = '';
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        if (insideQuote && line[i + 1] === '"') {
+          entry += '"';
+          i++; // Skip next quote
+        } else {
+          insideQuote = !insideQuote;
+        }
+      } else if (char === ',' && !insideQuote) {
+        result.push(entry);
+        entry = '';
+      } else {
+        entry += char;
+      }
+    }
+    result.push(entry);
+    return result;
+  };
+
   // CSV parser
   const parseCSV = (text) => {
     const lines = text.split(/\r?\n/);
     if (lines.length <= 1) return [];
     
     // Parse headers
-    const headers = lines[0].split(",").map(h => h.trim().replace(/^["']|["']$/g, '').toLowerCase());
+    const firstLine = lines[0].trim();
+    if (!firstLine) return [];
+    const headers = parseCSVLine(firstLine).map(h => h.trim().toLowerCase());
     const results = [];
 
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
 
-      // Split line by commas, respecting quotes
-      const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(",");
+      const matches = parseCSVLine(line);
       const row = {};
 
       headers.forEach((header, index) => {
-        let val = matches[index] ? matches[index].trim() : "";
-        // Unquote
-        if (val.startsWith('"') && val.endsWith('"')) {
-          val = val.substring(1, val.length - 1);
-        }
+        let val = matches[index] !== undefined ? matches[index].trim() : "";
         row[header] = val;
       });
       results.push(row);
@@ -74,13 +96,42 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
 
     addLog("info", `Analyzing ${rawData.length} rows from uploaded ${formatName} file...`);
 
+    // Detect if any titles contain the forbidden separator "|"
+    let hasPipeSeparator = false;
+    for (let i = 0; i < rawData.length; i++) {
+      const item = rawData[i];
+      const title = (item.title || item.Title || "");
+      if (title.includes("|")) {
+        hasPipeSeparator = true;
+        break;
+      }
+
+      // Check alternative titles
+      const altVal = item.alternativeTitles || item.alternative_titles || item.altTitles || item.alt_titles || item.alternativetitles || "";
+      if (Array.isArray(altVal)) {
+        if (altVal.some(t => typeof t === "string" && t.includes("|"))) {
+          hasPipeSeparator = true;
+          break;
+        }
+      } else if (typeof altVal === "string" && altVal.includes("|")) {
+        hasPipeSeparator = true;
+        break;
+      }
+    }
+
+    if (hasPipeSeparator) {
+      addLog("error", "Import Gagal: File mengandung karakter separator '|' yang dilarang pada judul.");
+      showNotification("File mengandung separator '|' yang dilarang!", "error");
+      return;
+    }
+
     const validComics = [];
     let duplicateCount = 0;
     
     // Populate the set with all title variants (main and alt) from the database
     const dbTitles = new Set();
     comics.forEach(c => {
-      getTitlesList(c.title).forEach(t => dbTitles.add(t));
+      getTitlesList(c).forEach(t => dbTitles.add(t));
     });
 
     rawData.forEach((item, index) => {
@@ -96,8 +147,19 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
         return;
       }
 
+      // Parse alternativeTitles
+      let alternativeTitles = [];
+      const altVal = item.alternativeTitles || item.alternative_titles || item.altTitles || item.alt_titles || item.alternativetitles;
+      if (Array.isArray(altVal)) {
+        alternativeTitles = altVal.map(t => (t || "").trim()).filter(Boolean);
+      } else if (typeof altVal === "string") {
+        // For CSV, alternative titles are separated by semicolon ';'
+        alternativeTitles = altVal.split(";").map(t => t.trim()).filter(Boolean);
+      }
+
       // Check all parsed title variations against the registered titles set
-      const newTitlesList = getTitlesList(title);
+      const tempComic = { title, alternativeTitles };
+      const newTitlesList = getTitlesList(tempComic);
       const isDuplicate = newTitlesList.some(t => dbTitles.has(t));
 
       if (isDuplicate) {
@@ -108,6 +170,7 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
         newTitlesList.forEach(t => dbTitles.add(t));
         validComics.push({
           title,
+          alternativeTitles,
           episode,
           link,
           isNSFW,
@@ -181,6 +244,7 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
     try {
       const cleanData = comics.map(c => ({
         title: c.title,
+        alternativeTitles: c.alternativeTitles || [],
         episode: c.episode,
         link: c.link,
         isNSFW: c.isNSFW,
@@ -209,14 +273,16 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
   const handleCSVExport = () => {
     addLog("info", "Starting CSV export...");
     try {
-      const csvRows = ["Title,Episode,Link,isNSFW,Thumbnail"];
+      const csvRows = ["Title,AlternativeTitles,Episode,Link,isNSFW,Thumbnail"];
       
       comics.forEach(c => {
-        // Escape quotes and commas in Title
+        // Escape quotes and commas in fields
         const escapedTitle = `"${c.title.replace(/"/g, '""')}"`;
+        const altTitlesStr = (c.alternativeTitles || []).join("; ");
+        const escapedAltTitles = `"${altTitlesStr.replace(/"/g, '""')}"`;
         const escapedLink = `"${c.link.replace(/"/g, '""')}"`;
         const escapedCover = `"${(c.thumbnail || "").replace(/"/g, '""')}"`;
-        csvRows.push(`${escapedTitle},${c.episode},${escapedLink},${c.isNSFW},${escapedCover}`);
+        csvRows.push(`${escapedTitle},${escapedAltTitles},${c.episode},${escapedLink},${c.isNSFW},${escapedCover}`);
       });
 
       const csvString = `data:text/csv;charset=utf-8,${encodeURIComponent(

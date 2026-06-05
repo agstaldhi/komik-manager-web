@@ -50,7 +50,7 @@ export const useComics = (showNSFW = false) => {
     setLoading(true);
     setError(null);
     try {
-      const isDuplicate = isDuplicateTitle(comicData.title, allComics);
+      const isDuplicate = isDuplicateTitle(comicData, allComics);
 
       if (isDuplicate) {
         throw new Error("Judul komik sudah ada!");
@@ -83,7 +83,7 @@ export const useComics = (showNSFW = false) => {
     setLoading(true);
     setError(null);
     try {
-      const isDuplicate = isDuplicateTitle(comicData.title, allComics, comicId);
+      const isDuplicate = isDuplicateTitle(comicData, allComics, comicId);
 
       if (isDuplicate) {
         throw new Error("Judul komik sudah ada!");

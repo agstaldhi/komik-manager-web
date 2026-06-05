@@ -13,7 +13,10 @@ export const Search = ({ comics, initialQuery = "" }) => {
   }, [initialQuery]);
 
   const filteredComics = comics.filter((c) =>
-    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+    (c.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (c.alternativeTitles || []).some((alt) =>
+      alt.toLowerCase().includes(searchQuery.toLowerCase())
+    )
   );
 
   const highlightText = (text, query) => {
@@ -111,21 +114,21 @@ export const Search = ({ comics, initialQuery = "" }) => {
                 }`}
                 style={{ wordBreak: 'break-word' }}
               >
-                {highlightText((comic.title || "").split("|")[0].trim(), searchQuery)}
+                {highlightText(comic.title || "", searchQuery)}
                 {comic.isNSFW && (
                   <span className="inline-block ml-2 px-1.5 py-0.5 text-xs font-black align-middle rounded bg-red-500 text-white">
                     18+
                   </span>
                 )}
               </a>
-              {(comic.title || "").split("|").slice(1).length > 0 && (
+              {comic.alternativeTitles && comic.alternativeTitles.length > 0 && (
                 <div
                   className={`text-xs sm:text-sm italic mt-1 leading-tight break-words mb-2 ${
                     darkMode ? "text-green-400/50" : "text-gray-500"
                   }`}
                 >
                   {highlightText(
-                    (comic.title || "").split("|").slice(1).map((t) => t.trim()).join(" • "),
+                    comic.alternativeTitles.join(" • "),
                     searchQuery
                   )}
                 </div>

@@ -1,26 +1,17 @@
 import { supabase } from "./supabase";
 
-// Helper: Map Supabase PostgreSQL row to frontend model (joining titles with ' | ')
+// Helper: Map Supabase PostgreSQL row to frontend model
 const mapSupabaseToFrontend = (item) => {
   if (!item) return null;
-  const fullTitle = [item.title, ...(item.alternative_titles || [])].join(" | ");
   return {
     id: item.id,
-    title: fullTitle,
+    title: item.title || "",
+    alternativeTitles: item.alternative_titles || [],
     episode: item.episode,
     link: item.link,
     isNSFW: item.is_nsfw,
     thumbnail: item.thumbnail || "",
     updatedAt: item.updated_at,
-  };
-};
-
-// Helper: Split frontend title string into main title and alternative titles array
-const splitTitle = (fullTitle) => {
-  const parts = (fullTitle || "").split("|").map((t) => t.trim());
-  return {
-    title: parts[0] || "",
-    alternative_titles: parts.slice(1).filter((t) => t.length > 0),
   };
 };
 
@@ -43,13 +34,12 @@ export const getAllComics = async () => {
 // Add new comic
 export const addComic = async (comicData) => {
   try {
-    const { title, alternative_titles } = splitTitle(comicData.title);
     const { data, error } = await supabase
       .from("comics")
       .insert([
         {
-          title,
-          alternative_titles,
+          title: (comicData.title || "").trim(),
+          alternative_titles: comicData.alternativeTitles || [],
           episode: parseInt(comicData.episode),
           link: comicData.link,
           is_nsfw: comicData.isNSFW || false,
@@ -69,12 +59,11 @@ export const addComic = async (comicData) => {
 // Update comic
 export const updateComic = async (comicId, comicData) => {
   try {
-    const { title, alternative_titles } = splitTitle(comicData.title);
     const { data, error } = await supabase
       .from("comics")
       .update({
-        title,
-        alternative_titles,
+        title: (comicData.title || "").trim(),
+        alternative_titles: comicData.alternativeTitles || [],
         episode: parseInt(comicData.episode),
         link: comicData.link,
         is_nsfw: comicData.isNSFW || false,
@@ -111,17 +100,14 @@ export const deleteComic = async (comicId) => {
 // Bulk upload
 export const bulkUploadComics = async (comicsArray) => {
   try {
-    const insertData = comicsArray.map((comic) => {
-      const { title, alternative_titles } = splitTitle(comic.title);
-      return {
-        title,
-        alternative_titles,
-        episode: parseInt(comic.episode),
-        link: comic.link,
-        is_nsfw: comic.isNSFW || false,
-        thumbnail: comic.thumbnail || "",
-      };
-    });
+    const insertData = comicsArray.map((comic) => ({
+      title: (comic.title || "").trim(),
+      alternative_titles: comic.alternativeTitles || [],
+      episode: parseInt(comic.episode),
+      link: comic.link,
+      is_nsfw: comic.isNSFW || false,
+      thumbnail: comic.thumbnail || "",
+    }));
 
     const { data, error } = await supabase
       .from("comics")

@@ -15,12 +15,9 @@ export const AddEdit = ({ editingComic, onSave, onCancel, isModal = false }) => 
 
   useEffect(() => {
     if (editingComic) {
-      const titleParts = (editingComic.title || "").split("|").map((t) => t.trim());
-      const mainTitle = titleParts[0] || "";
-      const altTitles = titleParts.slice(1);
       setFormData({
-        mainTitle,
-        altTitles,
+        mainTitle: editingComic.title || "",
+        altTitles: editingComic.alternativeTitles || [],
         episode: editingComic.episode || "",
         link: editingComic.link || "",
         isNSFW: editingComic.isNSFW || false,
@@ -43,10 +40,10 @@ export const AddEdit = ({ editingComic, onSave, onCancel, isModal = false }) => 
     const cleanAltTitles = formData.altTitles
       .map((t) => t.trim())
       .filter((t) => t.length > 0);
-    const fullTitle = [formData.mainTitle.trim(), ...cleanAltTitles].join(" | ");
 
     onSave({
-      title: fullTitle,
+      title: formData.mainTitle.trim(),
+      alternativeTitles: cleanAltTitles,
       episode: formData.episode,
       link: formData.link,
       isNSFW: formData.isNSFW,

@@ -83,7 +83,11 @@ export const List = ({
   // Filter comics: search and local NSFW filter
   const filteredComics = useMemo(() => {
     let filtered = comics.filter((comic) => {
-      const matchesSearch = (comic.title || "").toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch =
+        (comic.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (comic.alternativeTitles || []).some((alt) =>
+          alt.toLowerCase().includes(searchQuery.toLowerCase())
+        );
       if (!matchesSearch) return false;
       
       if (nsfwFilter === "safe" && comic.isNSFW) return false;

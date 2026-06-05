@@ -241,10 +241,7 @@ export const Home = ({ comics, onNavigate }) => {
       className="w-full space-y-8 pb-12"
     >
       {/* 1. Large Hero Banner (Adaptive Gradient per character) */}
-      <div 
-        className="relative w-full"
-        style={{ contentVisibility: "auto" }}
-      >
+      <div className="relative w-full">
         <div 
           className={`relative rounded-[2.5rem] border glass-panel p-8 sm:p-12 min-h-[380px] lg:min-h-[420px] flex flex-col justify-between overflow-hidden shadow-2xl transition-all duration-700 bg-gradient-to-br ${activeChar.gradient} ${activeChar.border} ${activeChar.glow}`}
         >

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -18,7 +18,7 @@ const CHARACTERS = [
   {
     name: "Gojo Satoru",
     anime: "Jujutsu Kaisen",
-    desc: "“Don't worry, I'm the strongest. Throughout Heaven and Earth, I alone am the honored one. Domain Expansion: Infinite Void.”",
+    desc: "“Mengorbankan diri untuk menang, dan mempertaruhkan nyawa untuk menang... itu adalah dua hal yang sangat berbeda.”",
     image: gojo,
     gradient: "from-blue-600/25 via-indigo-600/20 to-purple-600/25",
     glow: "shadow-blue-500/20 dark:shadow-indigo-500/20",
@@ -109,6 +109,14 @@ export const Home = ({ comics, onNavigate }) => {
   const { darkMode } = useTheme();
   const { showNSFW } = useAuth();
   const [activeCharIndex, setActiveCharIndex] = useState(0);
+
+  // Auto-cycle characters every 10 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setActiveCharIndex((prev) => (prev + 1) % CHARACTERS.length);
+    }, 10000);
+    return () => clearTimeout(timer);
+  }, [activeCharIndex]);
 
   const activeChar = CHARACTERS[activeCharIndex];
 

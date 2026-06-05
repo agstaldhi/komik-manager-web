@@ -181,7 +181,7 @@ const AppContent = () => {
         </div>
 
         {/* Middle Navigation (Desktop) */}
-        <div className="hidden md:flex items-center gap-1 bg-background/10 dark:bg-zinc-900/10 border border-border/45 dark:border-zinc-800/40 backdrop-blur-sm p-1 rounded-full relative">
+        <div className="hidden md:flex items-center gap-1.5 relative">
           {navItems.map((item) => {
             const isActive = page === item.url;
             return (

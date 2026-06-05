@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
+import { Plus, Trash2, X } from "lucide-react";
 
-export const AddEdit = ({ editingComic, onSave, onCancel, onUploadJSON }) => {
+export const AddEdit = ({ editingComic, onSave, onCancel, isModal = false }) => {
   const { darkMode } = useTheme();
   const [formData, setFormData] = useState({
     mainTitle: "",
@@ -54,63 +54,30 @@ export const AddEdit = ({ editingComic, onSave, onCancel, onUploadJSON }) => {
     });
   };
 
-  const pageVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 },
-  };
-
   return (
-    <motion.div
-      variants={pageVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="w-full max-w-5xl mx-auto"
-    >
-      <div
-        className={`border-2 ${darkMode ? "border-green-500 bg-black/30" : "border-gray-300 bg-white"} rounded-2xl p-6 sm:p-10 shadow-2xl ${darkMode && "shadow-green-500/20"}`}
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h2
-            className={`text-3xl font-bold ${darkMode ? "text-green-400" : "text-gray-800"}`}
-          >
-            {editingComic ? "✏️ Edit Komik" : "➕ Tambah Komik Baru"}
-          </h2>
-          
-          {/* Upload JSON Button */}
-          {!editingComic && (
-            <label
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 cursor-pointer transition-all font-bold text-sm bg-transparent ${
-                darkMode
-                  ? "border-green-500 text-green-400 hover:bg-green-500 hover:text-black"
-                  : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
-              }`}
-              title="Import JSON"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-              <span>Import JSON</span>
-              <input
-                type="file"
-                accept=".json"
-                onChange={onUploadJSON}
-                className="hidden"
-              />
-            </label>
-          )}
-        </div>
+    <div className={`w-full p-6 sm:p-8 ${darkMode ? "text-zinc-50" : "text-zinc-900"}`}>
+      {/* Title & Close Header */}
+      <div className="flex items-center justify-between pb-4 mb-6 border-b border-zinc-100 dark:border-zinc-900">
+        <h2 className="text-2xl font-black tracking-tight">
+          {editingComic ? "✏️ Edit Comic" : "➕ Add Comic"}
+        </h2>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all outline-none"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            
-            {/* Judul (8 Kolom di Desktop) */}
-            <div className="md:col-span-8">
-              <label
-                className={`block mb-2 font-bold ${darkMode ? "text-green-400" : "text-gray-700"}`}
-              >
-                Judul Komik
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          
+          {/* Judul Komik (8 Cols) */}
+          <div className="md:col-span-8 flex flex-col justify-between">
+            <div>
+              <label className="block mb-2 text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                Comic Title
               </label>
               <input
                 type="text"
@@ -118,122 +85,97 @@ export const AddEdit = ({ editingComic, onSave, onCancel, onUploadJSON }) => {
                 onChange={(e) =>
                   setFormData({ ...formData, mainTitle: e.target.value })
                 }
-                className={`w-full px-4 py-3 rounded-xl border-2 ${
-                  darkMode
-                    ? "border-green-500/50 bg-black/50 text-green-400 focus:border-green-400 focus:shadow-lg focus:shadow-green-500/30"
-                    : "border-gray-300 bg-gray-50 text-gray-800 focus:border-green-500 focus:bg-white"
-                } outline-none transition-all`}
-                placeholder="Contoh: Solo Leveling..."
+                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/40 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                placeholder="e.g. Solo Leveling"
                 required
               />
+            </div>
+            
+            {/* Alt Titles List */}
+            <div className="mt-4 space-y-2">
+              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                Alternative Titles
+              </label>
               
-              {/* Alt Titles Input List */}
-              <div className="mt-3 space-y-2">
-                {formData.altTitles.map((altTitle, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={altTitle}
-                      onChange={(e) => {
-                        const newAltTitles = [...formData.altTitles];
-                        newAltTitles[index] = e.target.value;
-                        setFormData({ ...formData, altTitles: newAltTitles });
-                      }}
-                      className={`flex-1 px-4 py-2 rounded-xl border-2 ${
-                        darkMode
-                          ? "border-green-500/30 bg-black/40 text-green-400 focus:border-green-400"
-                          : "border-gray-300 bg-gray-50 text-gray-800 focus:border-green-500 focus:bg-white"
-                      } outline-none transition-all text-sm`}
-                      placeholder={`Judul Alternatif #${index + 1}`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newAltTitles = formData.altTitles.filter((_, i) => i !== index);
-                        setFormData({ ...formData, altTitles: newAltTitles });
-                      }}
-                      className="p-2.5 rounded-xl border-2 border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white transition-all"
-                      title="Hapus judul alternatif"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
-                
-                {/* Tombol Add Alt Title */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData({ ...formData, altTitles: [...formData.altTitles, ""] });
-                  }}
-                  className={`px-3 py-1.5 flex items-center gap-1 text-xs font-bold rounded-lg border-2 transition-all ${
-                    darkMode
-                      ? "border-green-500/30 text-green-400 hover:bg-green-500/10"
-                      : "border-gray-300 text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  <span>Add Alt Title</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Episode (4 Kolom di Desktop) */}
-            <div className="md:col-span-4">
-              <label
-                className={`block mb-2 font-bold ${darkMode ? "text-green-400" : "text-gray-700"}`}
+              {formData.altTitles.map((altTitle, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={altTitle}
+                    onChange={(e) => {
+                      const newAltTitles = [...formData.altTitles];
+                      newAltTitles[index] = e.target.value;
+                      setFormData({ ...formData, altTitles: newAltTitles });
+                    }}
+                    className="flex-1 px-4 py-2 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/40 text-zinc-800 dark:text-zinc-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                    placeholder={`Alternative Title #${index + 1}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newAltTitles = formData.altTitles.filter((_, i) => i !== index);
+                      setFormData({ ...formData, altTitles: newAltTitles });
+                    }}
+                    className="p-2.5 rounded-xl border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all outline-none"
+                    title="Remove title"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({ ...formData, altTitles: [...formData.altTitles, ""] });
+                }}
+                className="px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900/60 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 transition-all outline-none"
               >
-                Episode Terakhir
-              </label>
-              <input
-                type="number"
-                value={formData.episode}
-                onChange={(e) =>
-                  setFormData({ ...formData, episode: e.target.value })
-                }
-                className={`w-full px-4 py-3 rounded-xl border-2 ${
-                  darkMode
-                    ? "border-green-500/50 bg-black/50 text-green-400 focus:border-green-400 focus:shadow-lg focus:shadow-green-500/30"
-                    : "border-gray-300 bg-gray-50 text-gray-800 focus:border-green-500 focus:bg-white"
-                } outline-none transition-all`}
-                placeholder="Contoh: 120"
-                required
-              />
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Alternative Title</span>
+              </button>
             </div>
+          </div>
 
-            {/* Link (Full Width 12 Kolom) */}
-            <div className="md:col-span-12">
-              <label
-                className={`block mb-2 font-bold ${darkMode ? "text-green-400" : "text-gray-700"}`}
-              >
-                Link URL Komik
-              </label>
-              <input
-                type="url"
-                value={formData.link}
-                onChange={(e) =>
-                  setFormData({ ...formData, link: e.target.value })
-                }
-                className={`w-full px-4 py-3 rounded-xl border-2 ${
-                  darkMode
-                    ? "border-green-500/50 bg-black/50 text-green-400 focus:border-green-400 focus:shadow-lg focus:shadow-green-500/30"
-                    : "border-gray-300 bg-gray-50 text-gray-800 focus:border-green-500 focus:bg-white"
-                } outline-none transition-all`}
-                placeholder="https://..."
-                required
-              />
-            </div>
+          {/* Episode (4 Cols) */}
+          <div className="md:col-span-4">
+            <label className="block mb-2 text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+              Last Read Episode
+            </label>
+            <input
+              type="number"
+              value={formData.episode}
+              onChange={(e) =>
+                setFormData({ ...formData, episode: e.target.value })
+              }
+              className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/40 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+              placeholder="e.g. 120"
+              required
+            />
+          </div>
 
-            {/* Link Thumbnail (8 Kolom di Desktop) */}
-            <div className="md:col-span-8 col-span-1">
-              <label
-                className={`block mb-2 font-bold ${darkMode ? "text-green-400" : "text-gray-700"}`}
-              >
-                Link URL Thumbnail (Cover)
+          {/* Link URL (Full Width) */}
+          <div className="md:col-span-12">
+            <label className="block mb-2 text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+              Comic URL Link
+            </label>
+            <input
+              type="url"
+              value={formData.link}
+              onChange={(e) =>
+                setFormData({ ...formData, link: e.target.value })
+              }
+              className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/40 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+              placeholder="https://..."
+              required
+            />
+          </div>
+
+          {/* Link Thumbnail (8 Cols) */}
+          <div className="md:col-span-8 flex flex-col justify-between">
+            <div>
+              <label className="block mb-2 text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                Cover Image URL (Thumbnail)
               </label>
               <input
                 type="url"
@@ -241,113 +183,88 @@ export const AddEdit = ({ editingComic, onSave, onCancel, onUploadJSON }) => {
                 onChange={(e) =>
                   setFormData({ ...formData, thumbnail: e.target.value })
                 }
-                className={`w-full px-4 py-3 rounded-xl border-2 ${
-                  darkMode
-                    ? "border-green-500/50 bg-black/50 text-green-400 focus:border-green-400 focus:shadow-lg focus:shadow-green-500/30"
-                    : "border-gray-300 bg-gray-50 text-gray-800 focus:border-green-500 focus:bg-white"
-                } outline-none transition-all`}
-                placeholder="https://example.com/cover.jpg..."
+                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/40 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
+                placeholder="https://..."
               />
-              <span className={`text-xs mt-1 block ${darkMode ? "text-green-500/60" : "text-gray-500"}`}>
-                Kosongkan jika ingin menggunakan cover default/placeholder.
+              <span className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 mt-2 block">
+                Leave empty to use a default cover book placeholder.
               </span>
             </div>
+          </div>
 
-            {/* Preview Thumbnail (4 Kolom di Desktop) */}
-            <div className="md:col-span-4 col-span-1 flex flex-col justify-end">
-              <label
-                className={`block mb-2 font-bold ${darkMode ? "text-green-400" : "text-gray-700"}`}
-              >
-                Preview Cover
-              </label>
-              <div
-                className={`h-[120px] w-[90px] rounded-lg border-2 border-dashed flex items-center justify-center overflow-hidden transition-all duration-300 ${
-                  formData.thumbnail
-                    ? "border-green-500/50 shadow-md shadow-green-500/10"
-                    : darkMode
-                    ? "border-green-500/20 bg-black/20 text-green-500/40"
-                    : "border-gray-300 bg-gray-50 text-gray-400"
-                }`}
-              >
-                {formData.thumbnail ? (
-                  <img
-                    src={formData.thumbnail}
-                    alt="Preview Cover"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "";
-                    }}
-                  />
-                ) : (
-                  <div className="text-center p-2 flex flex-col items-center justify-center">
-                    <span className="text-2xl mb-1">📖</span>
-                    <span className="text-[10px] uppercase font-bold tracking-wider">No Cover</span>
-                  </div>
-                )}
+          {/* Preview Thumbnail (4 Cols) */}
+          <div className="md:col-span-4 flex flex-col justify-end">
+            <label className="block mb-2 text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+              Cover Preview
+            </label>
+            <div
+              className={`h-[140px] w-[100px] rounded-2xl border border-dashed flex items-center justify-center overflow-hidden transition-all duration-300 ${
+                formData.thumbnail
+                  ? "border-emerald-500/50 shadow-md shadow-emerald-500/5 bg-zinc-50 dark:bg-zinc-900"
+                  : "border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40 text-zinc-400"
+              }`}
+            >
+              {formData.thumbnail ? (
+                <img
+                  src={formData.thumbnail}
+                  alt="Cover Preview"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "";
+                  }}
+                />
+              ) : (
+                <div className="text-center p-2 flex flex-col items-center justify-center">
+                  <span className="text-2xl mb-1">📖</span>
+                  <span className="text-[9px] uppercase font-bold tracking-wider text-zinc-400">No Cover</span>
+                </div>
+              )}
+            </div>
+          </div>
+          
+        </div>
+
+        {/* NSFW (18+) Checkbox Block */}
+        <div className="p-4 rounded-2xl border border-red-500/20 bg-red-500/5 dark:bg-red-500/10 backdrop-blur-sm">
+          <label className="flex items-center gap-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={formData.isNSFW}
+              onChange={(e) =>
+                setFormData({ ...formData, isNSFW: e.target.checked })
+              }
+              className="w-5 h-5 rounded border border-red-500 text-red-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+            />
+            <div>
+              <div className="font-extrabold text-sm text-red-500 dark:text-red-400">
+                🔞 NSFW Content (18+)
+              </div>
+              <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                Mark this comic as containing mature content. It will be hidden from guest users.
               </div>
             </div>
-            
-          </div>
+          </label>
+        </div>
 
-          {/* ⬇️ NSFW CHECKBOX ⬇️ */}
-          <div
-            className={`p-4 rounded-lg border-2 ${
-              darkMode
-                ? "border-red-500/50 bg-red-500/10"
-                : "border-red-300 bg-red-50"
-            }`}
+        {/* Form Submission Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-zinc-100 dark:border-zinc-900">
+          <button
+            type="submit"
+            className="w-full sm:flex-1 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 dark:hover:bg-emerald-400 text-white dark:text-black font-extrabold text-base transition-all select-none outline-none hover:shadow-lg hover:shadow-emerald-500/15 active:scale-[0.98]"
           >
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.isNSFW}
-                onChange={(e) =>
-                  setFormData({ ...formData, isNSFW: e.target.checked })
-                }
-                className="w-5 h-5 rounded border-2 border-red-500 text-red-500 focus:ring-2 focus:ring-red-500 cursor-pointer"
-              />
-              <div>
-                <div
-                  className={`font-bold ${darkMode ? "text-red-400" : "text-red-700"}`}
-                >
-                  🔞 NSFW Content (18+)
-                </div>
-                <div
-                  className={`text-sm ${darkMode ? "text-red-300" : "text-red-600"}`}
-                >
-                  Komik ini hanya akan terlihat oleh user yang login
-                </div>
-              </div>
-            </label>
-          </div>
-
-          {/* Buttons Area */}
-          <div className={`flex flex-col sm:flex-row gap-4 pt-8 mt-6 border-t-2 ${darkMode ? "border-green-500/20" : "border-gray-200"}`}>
-            <button
-              type="submit"
-              className={`w-full sm:flex-1 py-4 flex items-center justify-center gap-2 rounded-xl border-2 font-bold text-lg transition-all ${
-                darkMode
-                  ? "border-green-500 bg-green-500 text-black hover:bg-green-400 shadow-lg shadow-green-500/30"
-                  : "border-green-600 bg-green-600 text-white hover:bg-green-700 shadow-md"
-              }`}
-            >
-              {editingComic ? "💾 Simpan Perubahan" : "➕ Tambah Komik"}
-            </button>
-            <button
-              type="button"
-              onClick={onCancel}
-              className={`w-full sm:w-auto px-8 py-4 flex items-center justify-center gap-2 rounded-xl border-2 font-bold transition-all ${
-                darkMode
-                  ? "border-green-500/50 text-green-400 hover:border-green-400 hover:bg-green-500/10"
-                  : "border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-100"
-              }`}
-            >
-              ❌ Batal
-            </button>
-          </div>
-        </form>
-      </div>
-    </motion.div>
+            {editingComic ? "Simpan Perubahan" : "Tambah Komik"}
+          </button>
+          
+          <button
+            type="button"
+            onClick={onCancel}
+            className="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900/60 font-bold text-zinc-600 dark:text-zinc-300 transition-all select-none outline-none active:scale-[0.98]"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };

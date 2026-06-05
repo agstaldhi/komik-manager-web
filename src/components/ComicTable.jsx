@@ -1,145 +1,133 @@
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
+import { ArrowUpDown, Edit3, Trash2 } from "lucide-react";
 
 export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSort }) => {
   const { darkMode } = useTheme();
 
   return (
-    <div className="overflow-x-auto">
-      <table
-        className={`w-full table-fixed border-2 ${
-          darkMode ? "border-green-500" : "border-gray-300"
-        } rounded-lg overflow-hidden text-sm sm:text-base`}
-      >
-        <thead
-          className={
-            darkMode ? "bg-green-500 text-black" : "bg-gray-200 text-gray-800"
-          }
-        >
-          <tr>
+    <div className="overflow-x-auto w-full">
+      <table className="w-full text-left border-collapse text-xs sm:text-sm">
+        <thead>
+          <tr className="border-b border-zinc-200/50 dark:border-zinc-800/80 text-zinc-400 dark:text-zinc-500">
+            {/* Title Column */}
             <th 
-              className={`px-2 py-2 sm:px-4 sm:py-3 text-left w-[50%] sm:w-[60%] cursor-pointer select-none transition-colors ${darkMode ? "hover:bg-green-600" : "hover:bg-gray-300"}`}
+              className="px-4 py-3 text-left w-[55%] sm:w-[65%] cursor-pointer select-none transition-colors hover:text-emerald-500 font-bold uppercase tracking-wider"
               onClick={() => onSort && onSort('title')}
             >
-              <div className="flex items-center gap-1">
-                <span>Judul</span>
-                <span className="inline-flex justify-center flex-shrink-0 w-3 sm:w-4">
-                  {sortConfig?.key === 'title' ? (
-                    <span className="text-[10px] sm:text-xs">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                  ) : (
-                    <span className="opacity-30 text-[10px] sm:text-xs">↕</span>
-                  )}
-                </span>
+              <div className="flex items-center gap-1.5">
+                <span>Comic Title</span>
+                <ArrowUpDown className="w-3.5 h-3.5" />
+                {sortConfig?.key === 'title' && (
+                  <span className="text-emerald-500 font-extrabold text-[10px]">
+                    {sortConfig.direction === 'asc' ? 'ASC' : 'DESC'}
+                  </span>
+                )}
               </div>
             </th>
+
+            {/* Episode Column */}
             <th 
-              className={`px-2 py-2 sm:px-4 sm:py-3 text-center w-[20%] sm:w-[20%] cursor-pointer select-none transition-colors ${darkMode ? "hover:bg-green-600" : "hover:bg-gray-300"}`}
+              className="px-4 py-3 text-center w-[20%] sm:w-[15%] cursor-pointer select-none transition-colors hover:text-emerald-500 font-bold uppercase tracking-wider"
               onClick={() => onSort && onSort('episode')}
             >
-              <div className="flex items-center justify-center gap-1 w-full relative">
-                <span className="inline-block relative">
-                  Eps
-                  <span className="absolute -right-4 sm:-right-5 top-1/2 -translate-y-1/2 inline-flex justify-center flex-shrink-0 w-3 sm:w-4">
-                    {sortConfig?.key === 'episode' ? (
-                      <span className="text-[10px] sm:text-xs">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                    ) : (
-                      <span className="opacity-30 text-[10px] sm:text-xs">↕</span>
-                    )}
+              <div className="flex items-center justify-center gap-1.5">
+                <span>Episode</span>
+                <ArrowUpDown className="w-3.5 h-3.5" />
+                {sortConfig?.key === 'episode' && (
+                  <span className="text-emerald-500 font-extrabold text-[10px]">
+                    {sortConfig.direction === 'asc' ? 'ASC' : 'DESC'}
                   </span>
-                </span>
+                )}
               </div>
             </th>
-            {canEdit && <th className="px-2 py-2 sm:px-4 sm:py-3 text-left w-[30%] sm:w-[20%]">Aksi</th>}
+
+            {/* Actions Column */}
+            {canEdit && (
+              <th className="px-4 py-3 text-center w-[25%] sm:w-[20%] font-bold uppercase tracking-wider">
+                Actions
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
           {comics.map((comic, idx) => (
             <motion.tr
               key={comic.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: idx * 0.05 }}
-              className={`border-t-2 ${
-                darkMode
-                  ? "border-green-500/30 hover:bg-green-500/10"
-                  : "border-gray-200 hover:bg-gray-50"
-              } transition-colors`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: Math.min(idx * 0.03, 0.4), duration: 0.3 }}
+              className="border-b border-zinc-100 dark:border-zinc-900/60 hover:bg-zinc-50/40 dark:hover:bg-zinc-900/30 transition-all duration-200"
             >
-              <td className="px-2 py-2 sm:px-4 sm:py-3 align-middle">
-                <div className="flex items-center">
+              {/* Title & Cover */}
+              <td className="px-4 py-3.5 align-middle">
+                <div className="flex items-center gap-4">
                   {comic.thumbnail ? (
                     <img
                       src={comic.thumbnail}
                       alt={comic.title}
-                      className={`w-12 h-16 sm:w-14 sm:h-20 object-cover rounded-lg border-2 ${
-                        darkMode ? "border-green-500/30 shadow-green-500/10" : "border-gray-300"
-                      } shadow-md flex-shrink-0 mr-3`}
+                      className="w-10 h-14 object-cover rounded-lg shadow-md flex-shrink-0 border border-zinc-100 dark:border-zinc-900"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "";
                       }}
                     />
                   ) : (
-                    <div
-                      className={`w-12 h-16 sm:w-14 sm:h-20 rounded-lg border-2 border-dashed flex-shrink-0 mr-3 flex flex-col items-center justify-center shadow-inner ${
-                        darkMode
-                          ? "border-green-500/20 bg-green-500/5 text-green-400/50"
-                          : "border-gray-300 bg-gray-50 text-gray-400"
-                      }`}
-                    >
-                      <span className="text-xl sm:text-2xl">📖</span>
+                    <div className="w-10 h-14 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40 flex flex-col items-center justify-center text-lg flex-shrink-0">
+                      📖
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <a
-                      href={comic.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`hover:underline font-bold block break-words whitespace-normal leading-snug ${
-                        darkMode
-                          ? "text-green-300 hover:text-green-200"
-                          : "text-green-700 hover:text-green-800"
-                      }`}
-                      style={{ wordBreak: 'break-word' }}
-                    >
-                      {(comic.title || "").split("|")[0].trim()}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <a
+                        href={comic.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:underline font-extrabold text-sm sm:text-base text-zinc-800 dark:text-zinc-100 break-words whitespace-normal leading-snug hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
+                        style={{ wordBreak: 'break-word' }}
+                      >
+                        {(comic.title || "").split("|")[0].trim()}
+                      </a>
                       {comic.isNSFW && (
-                        <span className="inline-block ml-2 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-black tracking-wider rounded bg-red-500 text-white align-middle">
+                        <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] uppercase font-black tracking-wider rounded bg-red-500 text-white flex-shrink-0">
                           18+
                         </span>
                       )}
-                    </a>
+                    </div>
+                    
                     {(comic.title || "").split("|").slice(1).length > 0 && (
-                      <div
-                        className={`text-[11px] sm:text-xs italic mt-1 leading-tight break-words ${
-                          darkMode ? "text-green-400/50" : "text-gray-500"
-                        }`}
-                      >
+                      <div className="text-[10px] sm:text-xs italic text-zinc-400 dark:text-zinc-500 mt-1 leading-tight break-words">
                         {(comic.title || "").split("|").slice(1).map(t => t.trim()).join(" • ")}
                       </div>
                     )}
                   </div>
                 </div>
               </td>
-              <td className="px-2 py-2 sm:px-4 sm:py-3 text-center align-middle">{comic.episode}</td>
+
+              {/* Episode */}
+              <td className="px-4 py-3.5 text-center align-middle font-extrabold text-sm sm:text-base text-zinc-800 dark:text-zinc-200">
+                {comic.episode}
+              </td>
+
+              {/* Actions */}
               {canEdit && (
-                <td className="px-2 py-2 sm:px-4 sm:py-3 align-middle">
-                  <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2">
+                <td className="px-4 py-3.5 align-middle text-center">
+                  <div className="flex justify-center items-center gap-1.5 sm:gap-2">
+                    {/* Edit Button */}
                     <button
                       onClick={() => onEdit(comic)}
-                      className={`px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-base rounded border-2 transition-all ${
-                        darkMode
-                          ? "border-green-500 text-green-400 hover:bg-green-500 hover:text-black"
-                          : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
-                      }`}
+                      className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 dark:hover:border-emerald-500 text-zinc-500 hover:text-emerald-500 transition-all outline-none"
+                      title="Edit Comic"
                     >
-                      Edit
+                      <Edit3 className="w-4 h-4" />
                     </button>
+                    {/* Delete Button */}
                     <button
                       onClick={() => onDelete(comic)}
-                      className="px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-base rounded border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                      className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-red-500 dark:hover:border-red-500 text-zinc-500 hover:text-red-500 transition-all outline-none"
+                      title="Delete Comic"
                     >
-                      Hapus
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </td>

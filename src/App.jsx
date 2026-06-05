@@ -1,31 +1,34 @@
 import { useState, useEffect } from "react";
-import { AnimatePresence } from "framer-motion";
-import { ThemeProvider } from "./context/ThemeContext";
-import { AuthProvider, useAuth } from "./context/AuthContext"; // ⬅️ Import AuthProvider
+import { AnimatePresence, motion } from "framer-motion";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { useComics } from "./hooks/useComics";
-import { Navbar } from "./components/Navbar";
 import { Toast } from "./components/Toast";
 import { ModalDelete } from "./components/ModalDelete";
 import { ModalLogout } from "./components/ModalLogout";
 import { Home } from "./pages/Home";
 import { List } from "./pages/List";
-import { AddEdit } from "./pages/AddEdit";
-import { Login } from "./pages/Login"; // ⬅️ Import Login
-import { useTheme } from "./context/ThemeContext";
+import { Login } from "./pages/Login";
+import { Settings } from "./pages/Settings";
+import { About } from "./pages/About";
+import { SparklesText } from "./components/SparklesText";
+import { NavBar } from "./components/NavBar";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { AuroraBackground } from "./components/AuroraBackground";
+import { BookOpen, ChevronDown, Home as HomeIcon, Info, LogOut, Settings as SettingsIcon, User } from "lucide-react";
 
 const AppContent = () => {
   const { darkMode } = useTheme();
-  const { user, isGuest, canEdit, showNSFW, signOut } = useAuth(); // ⬅️ Auth state
-  const { comics, loading, addComic, updateComic, deleteComic, bulkUpload } =
-    useComics(showNSFW); // ⬅️ Pass showNSFW
+  const { user, isGuest, canEdit, showNSFW, signOut } = useAuth();
+  const { comics, loading, addComic, updateComic, deleteComic, bulkUpload } = useComics(showNSFW);
 
   const [page, setPage] = useState("home");
-  const [editingComic, setEditingComic] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [notification, setNotification] = useState(null);
 
-  // States to retain List page pagination/filter when navigating away (e.g. to AddEdit)
+  // States to retain List page filters/pagination when switching tabs
   const [listPage, setListPage] = useState(1);
   const [listSearch, setListSearch] = useState("");
   const [listNsfwFilter, setListNsfwFilter] = useState("all");
@@ -46,29 +49,17 @@ const AppContent = () => {
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
-    if (newPage === "add") {
-      setEditingComic(null);
-    }
   };
 
-  const handleEdit = (comic) => {
-    if (!canEdit) {
-      showNotification("Guest mode tidak bisa edit komik!", "error");
-      return;
-    }
-    setEditingComic(comic);
-    setPage("add");
-  };
-
-  const handleSave = async (formData) => {
+  const handleSave = async (editingComic, formData) => {
     if (!canEdit) {
       showNotification("Guest mode tidak bisa menambah/edit komik!", "error");
-      return;
+      return { success: false, message: "Guest mode disabled" };
     }
 
     if (!formData.title || !formData.episode || !formData.link) {
       showNotification("Semua field harus diisi!", "error");
-      return;
+      return { success: false, message: "Required fields missing" };
     }
 
     let result;
@@ -77,25 +68,25 @@ const AppContent = () => {
         title: formData.title,
         episode: parseInt(formData.episode),
         link: formData.link,
-        isNSFW: formData.isNSFW || false, // ⬅️ Support NSFW
-        thumbnail: formData.thumbnail || "", // ⬅️ Support thumbnail
+        isNSFW: formData.isNSFW || false,
+        thumbnail: formData.thumbnail || "",
       });
     } else {
       result = await addComic({
         title: formData.title,
         episode: parseInt(formData.episode),
         link: formData.link,
-        isNSFW: formData.isNSFW || false, // ⬅️ Support NSFW
-        thumbnail: formData.thumbnail || "", // ⬅️ Support thumbnail
+        isNSFW: formData.isNSFW || false,
+        thumbnail: formData.thumbnail || "",
       });
     }
 
     if (result.success) {
       showNotification(result.message, "success");
-      setEditingComic(null);
-      setPage("list");
+      return { success: true };
     } else {
       showNotification(result.message, "error");
+      return { success: false, message: result.message };
     }
   };
 
@@ -118,36 +109,9 @@ const AppContent = () => {
     setShowDeleteModal(null);
   };
 
-  const handleUploadJSON = async (e) => {
-    if (!canEdit) {
-      showNotification("Guest mode tidak bisa upload komik!", "error");
-      return;
-    }
-
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      try {
-        const jsonData = JSON.parse(event.target.result);
-        const result = await bulkUpload(jsonData);
-
-        if (result.success) {
-          showNotification(result.message, "success");
-        } else {
-          showNotification(result.message, "error");
-        }
-      } catch (error) {
-        showNotification("Format JSON tidak valid!", "error");
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = null;
-  };
-
   const handleSignOut = () => {
     setShowLogoutModal(true);
+    setShowProfileMenu(false);
   };
 
   const confirmLogout = async () => {
@@ -159,27 +123,32 @@ const AppContent = () => {
     }
   };
 
-  // ⬇️ REDIRECT KE LOGIN JIKA BELUM LOGIN ⬇️
+  // Redirect to Login if unauthenticated
   if (!user) {
     return <Login />;
   }
 
+  const navItems = [
+    { name: "Home", url: "home", icon: HomeIcon },
+    { name: "List Comics", url: "list", icon: BookOpen },
+    { name: "Settings", url: "settings", icon: SettingsIcon },
+    { name: "About", url: "about", icon: Info },
+  ];
+
   return (
-    <div
-      className={`min-h-screen ${darkMode ? "bg-black text-green-400" : "bg-gray-100 text-gray-800"} transition-colors duration-300`}
-    >
+    <AuroraBackground className="flex-col w-full text-zinc-900 dark:text-zinc-50">
       {/* Loading Overlay */}
       {loading && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-green-500 border-t-transparent mb-4"></div>
-            <div className="text-green-400 text-xl font-bold">Loading...</div>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[100] transition-all">
+          <div className="p-8 rounded-3xl border border-zinc-800 bg-black/80 flex flex-col items-center shadow-2xl">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent mb-4"></div>
+            <div className="text-zinc-100 text-lg font-black tracking-wider">Syncing Database...</div>
           </div>
         </div>
       )}
 
       {/* Toast Notification */}
-      <div className="fixed z-[100]">
+      <div className="fixed z-[100] top-4 right-4">
         <Toast notification={notification} />
       </div>
 
@@ -197,25 +166,92 @@ const AppContent = () => {
         onCancel={() => setShowLogoutModal(false)}
       />
 
-      {/* Navbar with Logout */}
-      <Navbar
-        currentPage={page}
-        onPageChange={handlePageChange}
-        user={user}
-        isGuest={isGuest}
-        onSignOut={handleSignOut}
+      {/* FIXED TOP HEADER */}
+      <header className="fixed top-0 inset-x-0 h-20 z-40 bg-background/5 border-b border-border/20 backdrop-blur-md pointer-events-auto transition-all select-none">
+        <div className="container mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
+          {/* Logo Brand left side */}
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setPage("home")}>
+            <SparklesText
+              text="Comic Gio"
+              className="text-xl sm:text-2xl font-black tracking-tight"
+              colors={{ first: "#10b981", second: "#6366f1" }}
+              sparklesCount={6}
+            />
+          </div>
+
+          {/* Right Area: Theme Switch + Profile Badge */}
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+
+            {/* Profile Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/30 backdrop-blur-sm text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 outline-none hover:border-emerald-500/50 active:scale-[0.97]"
+              >
+                <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+                  <User className="w-3.5 h-3.5" />
+                </div>
+                <span className="max-w-[70px] sm:max-w-[100px] truncate uppercase text-zinc-700 dark:text-zinc-300">
+                  {isGuest ? "Guest" : user.displayName || user.email?.split("@")[0]}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Profile Dropdown Menu */}
+              <AnimatePresence>
+                {showProfileMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-2 shadow-2xl backdrop-blur-xl pointer-events-auto"
+                  >
+                    <div className="px-3 py-2 text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-600 border-b border-zinc-100 dark:border-zinc-900 mb-1">
+                      Account Status
+                    </div>
+                    <div className="px-3 py-1.5 text-xs text-zinc-500 dark:text-zinc-400 font-bold truncate">
+                      {user.email || "Anonymous Guest"}
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full text-left px-3 py-2 rounded-xl text-red-500 hover:bg-red-500/5 transition-colors flex items-center gap-2 text-xs font-bold mt-1 outline-none"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>{isGuest ? "Exit Guest Mode" : "Logout"}</span>
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Floating Middle Navigation Bar */}
+      <NavBar
+        items={navItems}
+        activeTab={page}
+        onTabChange={handlePageChange}
       />
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 pt-2 pb-8 sm:pt-4 sm:pb-8 relative z-10">
+      {/* MAIN CONTAINER CONTENT */}
+      <main className="container mx-auto px-4 pt-28 pb-24 sm:pt-32 sm:pb-28 relative z-10 flex-1 flex flex-col justify-start">
         <AnimatePresence mode="wait">
-          {page === "home" && <Home key="home" comics={comics} />}
+          {page === "home" && (
+            <Home 
+              key="home" 
+              comics={comics} 
+              onNavigate={handlePageChange}
+            />
+          )}
 
           {page === "list" && (
             <List
               key="list"
               comics={comics}
-              onEdit={handleEdit}
+              onSaveComic={handleSave}
               onDelete={setShowDeleteModal}
               canEdit={canEdit}
               currentPage={listPage}
@@ -229,22 +265,23 @@ const AppContent = () => {
             />
           )}
 
-          {page === "add" &&
-            canEdit && ( // ⬅️ Hanya tampil jika bisa edit
-              <AddEdit
-                key="add"
-                editingComic={editingComic}
-                onSave={handleSave}
-                onCancel={() => {
-                  setEditingComic(null);
-                  setPage("list");
-                }}
-                onUploadJSON={handleUploadJSON}
-              />
-            )}
+          {page === "settings" && (
+            <Settings
+              key="settings"
+              comics={comics}
+              bulkUpload={bulkUpload}
+              showNotification={showNotification}
+            />
+          )}
+
+          {page === "about" && (
+            <About 
+              key="about" 
+            />
+          )}
         </AnimatePresence>
-      </div>
-    </div>
+      </main>
+    </AuroraBackground>
   );
 };
 
@@ -252,8 +289,6 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        {" "}
-        {/* ⬅️ Wrap with AuthProvider */}
         <AppContent />
       </AuthProvider>
     </ThemeProvider>

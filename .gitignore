@@ -39,3 +39,7 @@ firestore-debug.log
 
 # Local backup files
 comics_backup.json
+
+.agent
+
+download.jfif

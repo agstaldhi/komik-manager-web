@@ -113,55 +113,55 @@ const CHARACTERS = [
     anime: "Naruto Shippuden",
     desc: "“Takdir manusia mungkin sudah ditentukan sejak mereka lahir, tetapi dengan bekerja keras kita bisa mengalahkan takdir itu!”",
     image: naruto,
-    gradient: "from-yellow-500/20 via-amber-600/15 to-red-500/20",
-    glow: "shadow-yellow-500/20 dark:shadow-yellow-500/20",
-    border: "border-yellow-400/30 dark:border-yellow-400/50",
-    textColor: "text-yellow-600 dark:text-yellow-400",
-    accentBg: "bg-yellow-500",
+    gradient: "from-orange-500/25 via-amber-500/20 to-yellow-500/25",
+    glow: "shadow-orange-500/20 dark:shadow-amber-500/20",
+    border: "border-orange-500/30 dark:border-amber-400/50",
+    textColor: "text-orange-600 dark:text-amber-400",
+    accentBg: "bg-orange-500",
   },
    {
     name: "Ichigo Kurosaki",
     anime: "Bleach",
     desc: "“Aku tidak bertarung karena kupikir aku bisa menang. Aku bertarung karena aku harus menang.”",
     image: ichigo,
-    gradient: "from-orange-500/20 via-amber-600/15 to-orange-500/20",
-    glow: "shadow-orange-500/20 dark:shadow-orange-500/20",
-    border: "border-orange-400/30 dark:border-orange-400/50",
+    gradient: "from-orange-600/25 via-zinc-800/20 to-slate-900/25",
+    glow: "shadow-orange-600/20 dark:shadow-orange-500/20",
+    border: "border-orange-500/30 dark:border-orange-400/50",
     textColor: "text-orange-600 dark:text-orange-400",
-    accentBg: "bg-orange-500",
+    accentBg: "bg-orange-600",
   },
    {
     name: "Meliodas",
     anime: "Seven Deadly Sins",
     desc: "“Setiap orang pasti akan mati suatu hari nanti. Tetapi apa yang mereka yakini tidak akan pernah pudar selama ada seseorang yang melindunginya.”",
     image: meliodas,
-    gradient: "from-yellow-500/20 via-amber-600/15 to-yellow-500/20",
-    glow: "shadow-yellow-500/20 dark:shadow-yellow-500/20",
-    border: "border-yellow-400/30 dark:border-yellow-400/50",
-    textColor: "text-yellow-600 dark:text-yellow-400",
-    accentBg: "bg-yellow-500",
+    gradient: "from-emerald-500/25 via-yellow-500/15 to-lime-500/20",
+    glow: "shadow-emerald-500/20 dark:shadow-lime-500/20",
+    border: "border-emerald-500/30 dark:border-lime-400/50",
+    textColor: "text-emerald-600 dark:text-lime-400",
+    accentBg: "bg-emerald-500",
   },
    {
     name: "Natsu Dragneel",
     anime: "Fairy Tail",
-    desc: "“JAlasan kita di sini adalah untuk hidup, untuk mengalami masa-masa indah, dan untuk saling membantu.”",
+    desc: "“Alasan kita di sini adalah untuk hidup, untuk mengalami masa-masa indah, dan untuk saling membantu.”",
     image: natsu,
-    gradient: "from-yellow-500/20 via-amber-600/15 to-red-500/20",
-    glow: "shadow-yellow-500/20 dark:shadow-yellow-500/20",
-    border: "border-yellow-400/30 dark:border-yellow-400/50",
-    textColor: "text-yellow-600 dark:text-yellow-400",
-    accentBg: "bg-yellow-500",
+    gradient: "from-red-500/25 via-orange-500/20 to-pink-500/25",
+    glow: "shadow-red-500/20 dark:shadow-orange-500/20",
+    border: "border-red-500/30 dark:border-orange-400/50",
+    textColor: "text-red-600 dark:text-orange-400",
+    accentBg: "bg-red-500",
   },
    {
     name: "Uciha Itachi",
     anime: "Naruto Shippuden",
     desc: "“Tidak apa-apa jika kau tak pernah memaafkanku, tetapi apa pun yang kau jadi, aku akan selalu mencintaimu.”",
     image: itachi,
-    gradient: "from-red-500/20 via-amber-600/15 to-indigo-500/20",
-    glow: "shadow-red-500/20 dark:shadow-red-500/20",
-    border: "border-red-400/30 dark:border-red-400/50",
-    textColor: "text-red-600 dark:text-red-400",
-    accentBg: "bg-red-500",
+    gradient: "from-red-800/25 via-purple-900/20 to-zinc-950/25",
+    glow: "shadow-red-700/20 dark:shadow-purple-500/20",
+    border: "border-red-600/30 dark:border-purple-500/50",
+    textColor: "text-red-600 dark:text-purple-400",
+    accentBg: "bg-red-700",
   }
 ];
 
@@ -242,11 +242,11 @@ export const Home = ({ comics, onNavigate }) => {
     >
       {/* 1. Large Hero Banner (Adaptive Gradient per character) */}
       <div 
-        className={motion.div}
+        className="relative w-full"
         style={{ contentVisibility: "auto" }}
       >
         <div 
-          className={`relative rounded-[2.5rem] border glass-panel p-8 sm:p-12 min-h-[380px] lg:min-h-[420px] flex flex-col justify-between overflow-hidden shadow-2xl transition-all duration-700 bg-gradient-to-br ${activeChar.gradient} ${activeChar.border} ${activeChar.glow}`}
+          className={`relative rounded-[2.5rem] border glass-panel p-8 sm:p-12 min-h-[380px] lg:min-h-[420px] flex flex-col justify-between overflow-hidden lg:overflow-visible shadow-2xl transition-all duration-700 bg-gradient-to-br ${activeChar.gradient} ${activeChar.border} ${activeChar.glow}`}
         >
           {/* Neon back glow circles inside the hero banner */}
           <div className={`absolute -top-40 -left-40 w-96 h-96 rounded-full blur-3xl opacity-20 pointer-events-none transition-colors duration-700 ${activeChar.accentBg}`} />
@@ -301,10 +301,10 @@ export const Home = ({ comics, onNavigate }) => {
 
           {/* Character Popout Image */}
           <div 
-            className="absolute bottom-0 right-0 w-[45%] h-[95%] hidden lg:block z-10 select-none pointer-events-none"
+            className="absolute bottom-0 right-0 w-[45%] h-[112%] hidden lg:block z-20 select-none pointer-events-none"
             style={{
-              WebkitMaskImage: "linear-gradient(to top, black 90%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%)",
-              maskImage: "linear-gradient(to top, black 90%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%)",
+              WebkitMaskImage: "linear-gradient(to top, black 85%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%)",
+              maskImage: "linear-gradient(to top, black 85%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%)",
               maskComposite: "intersect",
               WebkitMaskComposite: "source-in"
             }}
@@ -314,7 +314,7 @@ export const Home = ({ comics, onNavigate }) => {
                 key={activeCharIndex}
                 src={activeChar.image}
                 alt={activeChar.name}
-                className="absolute bottom-0 right-8 w-auto h-[105%] object-contain object-bottom will-change-transform drop-shadow-[0_20px_35px_rgba(0,0,0,0.3)]"
+                className="absolute bottom-0 right-8 w-auto h-[112%] object-contain object-bottom will-change-transform drop-shadow-[0_20px_35px_rgba(0,0,0,0.3)]"
                 initial={{ opacity: 0, scale: 0.9, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -419,7 +419,7 @@ export const Home = ({ comics, onNavigate }) => {
               </div>
 
               {/* Chibi circular grid */}
-              <div className="grid grid-cols-4 gap-3 max-w-[200px]">
+              <div className="flex flex-wrap justify-center gap-2.5 max-w-[240px]">
                 {CHARACTERS.map((char, index) => (
                   <button
                     key={index}

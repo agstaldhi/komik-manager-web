@@ -2,18 +2,20 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "../lib/utils";
 
-export function NavBar({ items, activeTab, onTabChange, className }) {
-  const [isMobile, setIsMobile] = useState(false);
+export function NavBar({ items, activeTab: propActiveTab, onTabChange, className }) {
+  const [activeTab, setActiveTab] = useState(propActiveTab);
 
+  // Sync state if prop changes from outside
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    setActiveTab(propActiveTab);
+  }, [propActiveTab]);
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const handleTabClick = (url) => {
+    setActiveTab(url);
+    if (onTabChange) {
+      onTabChange(url);
+    }
+  };
 
   return (
     <div
@@ -30,7 +32,7 @@ export function NavBar({ items, activeTab, onTabChange, className }) {
           return (
             <button
               key={item.name}
-              onClick={() => onTabChange(item.url)}
+              onClick={() => handleTabClick(item.url)}
               className={cn(
                 "relative cursor-pointer text-xs sm:text-sm font-semibold px-4 sm:px-6 py-2 rounded-full transition-all duration-300 outline-none select-none",
                 "text-foreground/80 hover:text-primary",

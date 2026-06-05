@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: "class",
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
@@ -39,7 +40,7 @@ export default {
         },
       },
       animation: {
-        aurora: "aurora 15s linear infinite",
+        aurora: "aurora 45s linear infinite",
       },
       keyframes: {
         aurora: {

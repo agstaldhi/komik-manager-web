@@ -36,8 +36,10 @@ const AppContent = () => {
 
   useEffect(() => {
     if (darkMode) {
+      document.documentElement.classList.add("dark");
       document.documentElement.classList.remove("light-mode");
     } else {
+      document.documentElement.classList.remove("dark");
       document.documentElement.classList.add("light-mode");
     }
   }, [darkMode]);
@@ -166,74 +168,108 @@ const AppContent = () => {
         onCancel={() => setShowLogoutModal(false)}
       />
 
-      {/* FIXED TOP HEADER */}
-      <header className="fixed top-0 inset-x-0 h-20 z-40 bg-background/5 border-b border-border/20 backdrop-blur-md pointer-events-auto transition-all select-none">
-        <div className="container mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
-          {/* Logo Brand left side */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setPage("home")}>
-            <SparklesText
-              text="Comic Gio"
-              className="text-xl sm:text-2xl font-black tracking-tight"
-              colors={{ first: "#10b981", second: "#6366f1" }}
-              sparklesCount={6}
-            />
-          </div>
+      {/* FLOATING TOP HEADER CAPSULE */}
+      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-5xl h-16 sm:h-20 z-40 rounded-full border border-border/40 dark:border-zinc-800/80 bg-background/35 dark:bg-zinc-950/40 backdrop-blur-xl px-6 sm:px-8 flex items-center justify-between shadow-xl pointer-events-auto select-none">
+        {/* Logo Brand left side */}
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setPage("home")}>
+          <SparklesText
+            text="Comic Gio"
+            className="text-lg sm:text-xl font-black tracking-tight"
+            colors={{ first: "#10b981", second: "#6366f1" }}
+            sparklesCount={6}
+          />
+        </div>
 
-          {/* Right Area: Theme Switch + Profile Badge */}
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-
-            {/* Profile Dropdown */}
-            <div className="relative">
+        {/* Middle Navigation (Desktop) */}
+        <div className="hidden md:flex items-center gap-1 bg-background/10 dark:bg-zinc-900/10 border border-border/45 dark:border-zinc-800/40 backdrop-blur-sm p-1 rounded-full relative">
+          {navItems.map((item) => {
+            const isActive = page === item.url;
+            return (
               <button
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/30 backdrop-blur-sm text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 outline-none hover:border-emerald-500/50 active:scale-[0.97]"
+                key={item.name}
+                onClick={() => handlePageChange(item.url)}
+                className={`relative cursor-pointer text-xs sm:text-sm font-semibold px-5 py-2 rounded-full transition-all duration-300 outline-none select-none ${
+                  isActive ? "text-primary font-bold" : "text-foreground/75 hover:text-primary"
+                }`}
               >
-                <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
-                  <User className="w-3.5 h-3.5" />
-                </div>
-                <span className="max-w-[70px] sm:max-w-[100px] truncate uppercase text-zinc-700 dark:text-zinc-300">
-                  {isGuest ? "Guest" : user.displayName || user.email?.split("@")[0]}
-                </span>
-                <ChevronDown className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} />
-              </button>
-
-              {/* Profile Dropdown Menu */}
-              <AnimatePresence>
-                {showProfileMenu && (
+                <span>{item.name}</span>
+                {isActive && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-2 shadow-2xl backdrop-blur-xl pointer-events-auto"
+                    layoutId="header-lamp"
+                    className="absolute inset-0 w-full bg-primary/10 rounded-full -z-10"
+                    transition={{
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 30,
+                    }}
                   >
-                    <div className="px-3 py-2 text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-600 border-b border-zinc-100 dark:border-zinc-900 mb-1">
-                      Account Status
+                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full">
+                      <div className="absolute w-12 h-6 bg-primary/20 rounded-full blur-md -top-2 -left-2" />
+                      <div className="absolute w-8 h-6 bg-primary/20 rounded-full blur-md -top-1" />
+                      <div className="absolute w-4 h-4 bg-primary/20 rounded-full blur-sm top-0 left-2" />
                     </div>
-                    <div className="px-3 py-1.5 text-xs text-zinc-500 dark:text-zinc-400 font-bold truncate">
-                      {user.email || "Anonymous Guest"}
-                    </div>
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full text-left px-3 py-2 rounded-xl text-red-500 hover:bg-red-500/5 transition-colors flex items-center gap-2 text-xs font-bold mt-1 outline-none"
-                    >
-                      <LogOut className="w-3.5 h-3.5" />
-                      <span>{isGuest ? "Exit Guest Mode" : "Logout"}</span>
-                    </button>
                   </motion.div>
                 )}
-              </AnimatePresence>
-            </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right Area: Theme Switch + Profile Badge */}
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+
+          {/* Profile Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-zinc-200 dark:border-zinc-800 bg-white/40 dark:bg-black/30 backdrop-blur-sm text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 outline-none hover:border-emerald-500/50 active:scale-[0.97]"
+            >
+              <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+                <User className="w-3.5 h-3.5" />
+              </div>
+              <span className="max-w-[70px] sm:max-w-[100px] truncate uppercase text-zinc-700 dark:text-zinc-300">
+                {isGuest ? "Guest" : user.displayName || user.email?.split("@")[0]}
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Profile Dropdown Menu */}
+            <AnimatePresence>
+              {showProfileMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-2 shadow-2xl backdrop-blur-xl pointer-events-auto"
+                >
+                  <div className="px-3 py-2 text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-600 border-b border-zinc-100 dark:border-zinc-900 mb-1">
+                    Account Status
+                  </div>
+                  <div className="px-3 py-1.5 text-xs text-zinc-500 dark:text-zinc-400 font-bold truncate">
+                    {user.email || "Anonymous Guest"}
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left px-3 py-2 rounded-xl text-red-500 hover:bg-red-500/5 transition-colors flex items-center gap-2 text-xs font-bold mt-1 outline-none"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>{isGuest ? "Exit Guest Mode" : "Logout"}</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </header>
 
-      {/* Floating Middle Navigation Bar */}
+      {/* Floating Bottom Tab Bar (Mobile Only) */}
       <NavBar
         items={navItems}
         activeTab={page}
         onTabChange={handlePageChange}
+        className="md:hidden"
       />
 
       {/* MAIN CONTAINER CONTENT */}

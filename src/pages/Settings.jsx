@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { AlertTriangle, Download, FileJson, FileSpreadsheet, Play, Trash2, Upload } from "lucide-react";
+import { getTitlesList } from "../utils/titleUtils";
 
 export const Settings = ({ comics, bulkUpload, showNotification }) => {
   const { darkMode } = useTheme();
@@ -75,7 +76,12 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
 
     const validComics = [];
     let duplicateCount = 0;
-    const dbTitles = new Set(comics.map(c => c.title.toLowerCase().trim()));
+    
+    // Populate the set with all title variants (main and alt) from the database
+    const dbTitles = new Set();
+    comics.forEach(c => {
+      getTitlesList(c.title).forEach(t => dbTitles.add(t));
+    });
 
     rawData.forEach((item, index) => {
       // Handle potential CSV/JSON key variants
@@ -90,12 +96,16 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
         return;
       }
 
-      const isDuplicate = dbTitles.has(title.toLowerCase());
+      // Check all parsed title variations against the registered titles set
+      const newTitlesList = getTitlesList(title);
+      const isDuplicate = newTitlesList.some(t => dbTitles.has(t));
 
       if (isDuplicate) {
         duplicateCount++;
-        addLog("warning", `Duplicate detected: "${title}" is already in database. Skipped.`);
+        addLog("warning", `Duplicate detected: "${title}" is already in database or import file. Skipped.`);
       } else {
+        // Add new titles to the set to prevent duplicates in the same file
+        newTitlesList.forEach(t => dbTitles.add(t));
         validComics.push({
           title,
           episode,

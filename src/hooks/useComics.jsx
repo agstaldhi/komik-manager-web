@@ -6,6 +6,7 @@ import {
   deleteComic as deleteComicDB,
   bulkUploadComics as bulkUploadDB,
 } from "../supabase/supabaseService";
+import { isDuplicateTitle } from "../utils/titleUtils";
 
 export const useComics = (showNSFW = false) => {
   const [allComics, setAllComics] = useState([]); // ⬅️ Store ALL comics
@@ -49,11 +50,7 @@ export const useComics = (showNSFW = false) => {
     setLoading(true);
     setError(null);
     try {
-      const isDuplicate = allComics.some(
-        (comic) =>
-          comic.title.toLowerCase().trim() ===
-          comicData.title.toLowerCase().trim(),
-      );
+      const isDuplicate = isDuplicateTitle(comicData.title, allComics);
 
       if (isDuplicate) {
         throw new Error("Judul komik sudah ada!");
@@ -86,12 +83,7 @@ export const useComics = (showNSFW = false) => {
     setLoading(true);
     setError(null);
     try {
-      const isDuplicate = allComics.some(
-        (comic) =>
-          comic.id !== comicId &&
-          comic.title.toLowerCase().trim() ===
-            comicData.title.toLowerCase().trim(),
-      );
+      const isDuplicate = isDuplicateTitle(comicData.title, allComics, comicId);
 
       if (isDuplicate) {
         throw new Error("Judul komik sudah ada!");

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-import { AlertTriangle, Download, FileJson, FileSpreadsheet, Play, Trash2, Upload } from "lucide-react";
+import { AlertTriangle, Download, FileJson, FileSpreadsheet, Play, Trash2, Upload, ShieldAlert } from "lucide-react";
 import { getTitlesList } from "../utils/titleUtils";
 
 export const Settings = ({ comics, bulkUpload, showNotification }) => {
@@ -312,6 +312,69 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
     }
   };
 
+  // Run local database integrity check for duplicate titles & links
+  const runLocalDuplicateCheck = () => {
+    addLog("info", `Starting database integrity check on ${comics.length} records...`);
+    
+    let duplicateLinksCount = 0;
+    let duplicateTitlesCount = 0;
+
+    // --- CHECK DUPLICATE LINKS ---
+    const linkGroups = {};
+    comics.forEach((comic) => {
+      const cleanLink = (comic.link || '').trim().toLowerCase();
+      if (!cleanLink) return;
+
+      if (!linkGroups[cleanLink]) {
+        linkGroups[cleanLink] = [];
+      }
+      linkGroups[cleanLink].push(comic);
+    });
+
+    const duplicateLinks = Object.entries(linkGroups).filter(([_, group]) => group.length > 1);
+
+    if (duplicateLinks.length > 0) {
+      addLog("warning", "=== TEMUAN DUPLIKAT LINK URL ===");
+      duplicateLinks.forEach(([link, group]) => {
+        const info = group.map(c => `"${c.title}" (ID: ${c.id.substring(0, 8)}...)`).join(" vs ");
+        addLog("warning", `Link URL [${link}] digunakan oleh: ${info}`);
+        duplicateLinksCount += group.length - 1;
+      });
+    }
+
+    // --- CHECK DUPLICATE TITLES ---
+    const titleToComics = {};
+    comics.forEach((comic) => {
+      const variants = getTitlesList(comic);
+      variants.forEach((v) => {
+        if (!titleToComics[v]) {
+          titleToComics[v] = [];
+        }
+        titleToComics[v].push(comic);
+      });
+    });
+
+    const duplicateTitles = Object.entries(titleToComics).filter(([_, group]) => group.length > 1);
+
+    if (duplicateTitles.length > 0) {
+      addLog("warning", "=== TEMUAN DUPLIKAT JUDUL / JUDUL ALTERNATIF ===");
+      duplicateTitles.forEach(([variant, group]) => {
+        const info = group.map(c => `"${c.title}" (ID: ${c.id.substring(0, 8)}...)`).join(" vs ");
+        addLog("warning", `Judul [${variant}] digunakan oleh: ${info}`);
+        duplicateTitlesCount += group.length - 1;
+      });
+    }
+
+    // --- FINAL REPORT ---
+    if (duplicateLinksCount === 0 && duplicateTitlesCount === 0) {
+      addLog("success", "INTEGRITAS DATABASE AMAN: Tidak ditemukan duplikat judul maupun link URL.");
+      showNotification("Integrasi database aman! Tidak ada duplikat.", "success");
+    } else {
+      addLog("error", `HASIL DETEKSI: Ditemukan ${duplicateLinksCount} duplikat link dan ${duplicateTitlesCount} duplikat judul. Silakan periksa detailnya di log console.`);
+      showNotification(`Ditemukan duplikat! Periksa log console.`, "error");
+    }
+  };
+
   const pageVariants = {
     initial: { opacity: 0, y: 15 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.4 } },
@@ -326,6 +389,24 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
       exit="exit"
       className="max-w-5xl mx-auto space-y-8"
     >
+      {/* Panel 0: Database Integrity Check */}
+      <div className="p-6 sm:p-8 rounded-[2rem] border border-zinc-100 dark:border-zinc-900 bg-white/40 dark:bg-black/30 backdrop-blur-md">
+        <h3 className="text-xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50 flex items-center gap-2 mb-2">
+          <ShieldAlert className="w-5 h-5 text-amber-500" />
+          <span>Database Integrity Check</span>
+        </h3>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-6 leading-relaxed font-medium">
+          Scan the entire local catalog of {comics.length} comics to detect duplicate title variants (main or alternative) and duplicate URL links. The detailed report will be output directly to the Activity Logs Console below.
+        </p>
+        <button
+          onClick={runLocalDuplicateCheck}
+          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 dark:hover:bg-amber-400 text-white dark:text-black font-extrabold text-sm transition-all select-none outline-none hover:shadow-lg hover:shadow-amber-500/15 active:scale-[0.98]"
+        >
+          <Play className="w-4 h-4" />
+          <span>Jalankan Pengecekan Duplikat</span>
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
         {/* Panel 1: Import */}

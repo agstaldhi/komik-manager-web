@@ -165,7 +165,7 @@ export const List = ({
                 className="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 dark:hover:bg-emerald-400 text-white dark:text-black font-extrabold flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] select-none outline-none"
               >
                 <Plus className="w-5 h-5" strokeWidth={2.5} />
-                <span>Add Comics+</span>
+                <span>Add Comics</span>
               </button>
             )}
           </div>

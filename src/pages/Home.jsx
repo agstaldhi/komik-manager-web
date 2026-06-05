@@ -301,8 +301,8 @@ export const Home = ({ comics, onNavigate }) => {
         <div 
           className="absolute bottom-0 right-0 w-[45%] h-[112%] hidden lg:block z-20 select-none pointer-events-none"
           style={{
-            WebkitMaskImage: "linear-gradient(to top, black 85%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%)",
-            maskImage: "linear-gradient(to top, black 85%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%)",
+            WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 15%, black 100%), linear-gradient(to right, transparent 0%, black 15%)",
+            maskImage: "linear-gradient(to top, transparent 0%, black 15%, black 100%), linear-gradient(to right, transparent 0%, black 15%)",
             maskComposite: "intersect",
             WebkitMaskComposite: "source-in"
           }}

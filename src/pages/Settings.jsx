@@ -130,8 +130,10 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
     
     // Populate the set with all title variants (main and alt) from the database
     const dbTitles = new Set();
+    const dbLinks = new Set();
     comics.forEach(c => {
       getTitlesList(c).forEach(t => dbTitles.add(t));
+      if (c.link) dbLinks.add(c.link.trim().toLowerCase());
     });
 
     rawData.forEach((item, index) => {
@@ -160,14 +162,21 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
       // Check all parsed title variations against the registered titles set
       const tempComic = { title, alternativeTitles };
       const newTitlesList = getTitlesList(tempComic);
-      const isDuplicate = newTitlesList.some(t => dbTitles.has(t));
+      const isDuplicateTitleVal = newTitlesList.some(t => dbTitles.has(t));
 
-      if (isDuplicate) {
+      const cleanLink = link.trim().toLowerCase();
+      const isDuplicateLinkVal = dbLinks.has(cleanLink);
+
+      if (isDuplicateTitleVal) {
         duplicateCount++;
-        addLog("warning", `Duplicate detected: "${title}" is already in database or import file. Skipped.`);
+        addLog("warning", `Duplicate title detected: "${title}" is already in database or import file. Skipped.`);
+      } else if (isDuplicateLinkVal) {
+        duplicateCount++;
+        addLog("warning", `Duplicate link detected: "${link}" is already in database or import file. Skipped.`);
       } else {
-        // Add new titles to the set to prevent duplicates in the same file
+        // Add new titles & link to the set to prevent duplicates in the same file
         newTitlesList.forEach(t => dbTitles.add(t));
+        if (cleanLink) dbLinks.add(cleanLink);
         validComics.push({
           title,
           alternativeTitles,

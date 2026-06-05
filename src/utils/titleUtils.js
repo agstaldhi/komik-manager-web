@@ -22,3 +22,14 @@ export const isDuplicateTitle = (newComicData, existingComics, excludeId = null)
     return newTitlesList.some((t) => existingTitlesList.includes(t));
   });
 };
+
+export const isDuplicateLink = (newLink, existingComics, excludeId = null) => {
+  const cleanLink = (newLink || "").trim().toLowerCase();
+  if (!cleanLink) return false;
+
+  return existingComics.some((comic) => {
+    if (excludeId && comic.id === excludeId) return false;
+    return (comic.link || "").trim().toLowerCase() === cleanLink;
+  });
+};
+

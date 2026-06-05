@@ -18,7 +18,7 @@ const CHARACTERS = [
   {
     name: "Gojo Satoru",
     anime: "Jujutsu Kaisen",
-    desc: "The strongest Jujutsu Sorcerer. Master of the Limitless and Six Eyes. Bringing unparalleled power and style to your comic tracker.",
+    desc: "“Don't worry, I'm the strongest. Throughout Heaven and Earth, I alone am the honored one. Domain Expansion: Infinite Void.”",
     image: gojo,
     gradient: "from-blue-600/25 via-indigo-600/20 to-purple-600/25",
     glow: "shadow-blue-500/20 dark:shadow-indigo-500/20",
@@ -29,7 +29,7 @@ const CHARACTERS = [
   {
     name: "Rimuru Tempest",
     anime: "Reincarnated as a Slime",
-    desc: "Founder of the Tempest Federation. A slime-turned-demon lord with infinite skills and a heart for peaceful harmony.",
+    desc: "“I'm not a bad slime, you know! Let's build a nation where everyone, humans and monsters alike, can live in peaceful harmony.”",
     image: rimuru,
     gradient: "from-sky-500/25 via-cyan-500/20 to-blue-500/25",
     glow: "shadow-sky-500/20 dark:shadow-sky-500/20",
@@ -40,7 +40,7 @@ const CHARACTERS = [
   {
     name: "Monkey D. Luffy",
     anime: "One Piece",
-    desc: "Captain of the Straw Hat Pirates. Boundless freedom and energy. Embark on the grandest comic exploration adventure.",
+    desc: "“I'm going to be the Pirate King! If you don't take risks, you can't create a future! I don't want to conquer anything, I just want to be free.”",
     image: luffy,
     gradient: "from-orange-500/25 via-amber-500/20 to-red-500/25",
     glow: "shadow-orange-500/20 dark:shadow-orange-500/20",
@@ -51,7 +51,7 @@ const CHARACTERS = [
   {
     name: "Sung Jin Woo",
     anime: "Solo Leveling",
-    desc: "The Shadow Monarch. Commander of the Undead Shadows. Level up your comic tracking journey into the deepest dungeons.",
+    desc: "“Arise. From this moment on, you shall serve me as my shadows. If the system wants me to kill, I will kill. If I have to become a monster, I will.”",
     image: jinwoo,
     gradient: "from-purple-800/25 via-indigo-950/20 to-slate-900/25",
     glow: "shadow-purple-700/20 dark:shadow-purple-500/20",
@@ -62,7 +62,7 @@ const CHARACTERS = [
   {
     name: "Ken Kaneki",
     anime: "Tokyo Ghoul",
-    desc: "The One-Eyed Ghoul. Adapting through tragedy and dark transformations. A haunting style for dark-theme lovers.",
+    desc: "“What's wrong isn't me... what's wrong is this world. If you write a story with me in the lead, it would certainly be a tragedy.”",
     image: kaneki,
     gradient: "from-red-600/25 via-zinc-800/20 to-neutral-900/25",
     glow: "shadow-red-500/20 dark:shadow-red-500/20",
@@ -73,7 +73,7 @@ const CHARACTERS = [
   {
     name: "Nezuko Kamado",
     anime: "Demon Slayer",
-    desc: "The demon-turned-human sister. Blood demon art user. Cute yet formidable force representing family bonding.",
+    desc: "“Mmh! Mmh! (Humans are to be protected and saved... I will never hurt them, and I will protect Tanjiro and everyone no matter what!)”",
     image: nezuko,
     gradient: "from-rose-500/25 via-pink-500/20 to-rose-400/25",
     glow: "shadow-rose-500/20 dark:shadow-rose-500/20",
@@ -84,7 +84,7 @@ const CHARACTERS = [
   {
     name: "Killua Zoldyck",
     anime: "Hunter x Hunter",
-    desc: "Prodigy assassin of the Zoldyck Family. Transmuter of electrical aura. Godspeed velocity comic browsing.",
+    desc: "“If I ignore a friend I have the ability to help, wouldn't I be betraying him? Gon... you are light itself. Sometimes, you shine so brightly, I must look away.”",
     image: killua,
     gradient: "from-indigo-500/25 via-blue-500/20 to-slate-400/25",
     glow: "shadow-indigo-500/20 dark:shadow-indigo-500/20",
@@ -95,7 +95,7 @@ const CHARACTERS = [
   {
     name: "Saitama",
     anime: "One Punch Man",
-    desc: "The Hero for Fun who ends conflicts with a single punch. Simple design, massive impact. Bored of ordinary tracking layouts.",
+    desc: "“I'm just a guy who's a hero for fun. In exchange for gaining this power, have I lost something essential to being human? One punch is all it takes.”",
     image: saitama,
     gradient: "from-yellow-500/20 via-amber-600/15 to-red-500/20",
     glow: "shadow-yellow-500/20 dark:shadow-yellow-500/20",

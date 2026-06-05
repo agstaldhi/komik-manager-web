@@ -246,7 +246,7 @@ export const Home = ({ comics, onNavigate }) => {
         style={{ contentVisibility: "auto" }}
       >
         <div 
-          className={`relative rounded-[2.5rem] border glass-panel p-8 sm:p-12 min-h-[380px] lg:min-h-[420px] flex flex-col justify-between overflow-hidden lg:overflow-visible shadow-2xl transition-all duration-700 bg-gradient-to-br ${activeChar.gradient} ${activeChar.border} ${activeChar.glow}`}
+          className={`relative rounded-[2.5rem] border glass-panel p-8 sm:p-12 min-h-[380px] lg:min-h-[420px] flex flex-col justify-between overflow-hidden shadow-2xl transition-all duration-700 bg-gradient-to-br ${activeChar.gradient} ${activeChar.border} ${activeChar.glow}`}
         >
           {/* Neon back glow circles inside the hero banner */}
           <div className={`absolute -top-40 -left-40 w-96 h-96 rounded-full blur-3xl opacity-20 pointer-events-none transition-colors duration-700 ${activeChar.accentBg}`} />
@@ -298,30 +298,30 @@ export const Home = ({ comics, onNavigate }) => {
               />
             ))}
           </div>
+        </div>
 
-          {/* Character Popout Image */}
-          <div 
-            className="absolute bottom-0 right-0 w-[45%] h-[112%] hidden lg:block z-20 select-none pointer-events-none"
-            style={{
-              WebkitMaskImage: "linear-gradient(to top, black 85%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%)",
-              maskImage: "linear-gradient(to top, black 85%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%)",
-              maskComposite: "intersect",
-              WebkitMaskComposite: "source-in"
-            }}
-          >
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={activeCharIndex}
-                src={activeChar.image}
-                alt={activeChar.name}
-                className="absolute bottom-0 right-8 w-auto h-[112%] object-contain object-bottom will-change-transform drop-shadow-[0_20px_35px_rgba(0,0,0,0.3)]"
-                initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              />
-            </AnimatePresence>
-          </div>
+        {/* Character Popout Image (Placed as a sibling to avoid backdrop-filter clipping) */}
+        <div 
+          className="absolute bottom-0 right-0 w-[45%] h-[112%] hidden lg:block z-20 select-none pointer-events-none"
+          style={{
+            WebkitMaskImage: "linear-gradient(to top, black 85%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%)",
+            maskImage: "linear-gradient(to top, black 85%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%)",
+            maskComposite: "intersect",
+            WebkitMaskComposite: "source-in"
+          }}
+        >
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={activeCharIndex}
+              src={activeChar.image}
+              alt={activeChar.name}
+              className="absolute bottom-0 right-8 w-auto h-[112%] object-contain object-bottom will-change-transform drop-shadow-[0_20px_35px_rgba(0,0,0,0.3)]"
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            />
+          </AnimatePresence>
         </div>
       </div>
 

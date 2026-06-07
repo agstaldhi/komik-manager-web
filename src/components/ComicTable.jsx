@@ -12,7 +12,7 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSo
           <tr className="border-b border-zinc-200/50 dark:border-zinc-800/80 text-zinc-400 dark:text-zinc-500">
             {/* Title Column */}
             <th 
-              className="px-4 py-3 text-left w-[55%] sm:w-[65%] cursor-pointer select-none transition-colors hover:text-emerald-500 font-bold uppercase tracking-wider"
+              className="px-4 py-3 text-left w-[75%] sm:w-[80%] cursor-pointer select-none transition-colors hover:text-emerald-500 font-bold uppercase tracking-wider"
               onClick={() => onSort && onSort('title')}
             >
               <div className="flex items-center gap-1.5">
@@ -28,7 +28,7 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSo
 
             {/* Episode Column */}
             <th 
-              className="px-4 py-3 text-center w-[20%] sm:w-[15%] cursor-pointer select-none transition-colors hover:text-emerald-500 font-bold uppercase tracking-wider"
+              className="px-4 py-3 text-center w-[25%] sm:w-[20%] cursor-pointer select-none transition-colors hover:text-emerald-500 font-bold uppercase tracking-wider"
               onClick={() => onSort && onSort('episode')}
             >
               <div className="flex items-center justify-center gap-1.5">
@@ -41,13 +41,6 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSo
                 )}
               </div>
             </th>
-
-            {/* Actions Column */}
-            {canEdit && (
-              <th className="px-4 py-3 text-center w-[25%] sm:w-[20%] font-bold uppercase tracking-wider">
-                Actions
-              </th>
-            )}
           </tr>
         </thead>
         <tbody>
@@ -66,19 +59,24 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSo
                     <img
                       src={comic.thumbnail}
                       alt={comic.title}
-                      className="w-10 h-14 object-cover rounded-lg shadow-md flex-shrink-0 border border-zinc-100 dark:border-zinc-900"
+                      className="w-12 h-16 sm:w-14 sm:h-20 object-cover rounded-lg shadow-md flex-shrink-0 border border-zinc-100 dark:border-zinc-900"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "";
                       }}
                     />
                   ) : (
-                    <div className="w-10 h-14 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40 flex flex-col items-center justify-center text-lg flex-shrink-0">
+                    <div className="w-12 h-16 sm:w-14 sm:h-20 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40 flex flex-col items-center justify-center text-lg flex-shrink-0">
                       📖
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
+                      {comic.isNSFW && (
+                        <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] uppercase font-black tracking-wider rounded bg-red-500 text-white flex-shrink-0">
+                          18+
+                        </span>
+                      )}
                       <a
                         href={comic.link}
                         target="_blank"
@@ -86,13 +84,8 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSo
                         className="hover:underline font-extrabold text-sm sm:text-base text-zinc-800 dark:text-zinc-100 break-words whitespace-normal leading-snug hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
                         style={{ wordBreak: 'break-word' }}
                       >
-                                              {comic.title}
+                        {comic.title}
                       </a>
-                      {comic.isNSFW && (
-                        <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] uppercase font-black tracking-wider rounded bg-red-500 text-white flex-shrink-0">
-                          18+
-                        </span>
-                      )}
                     </div>
                     
                     {comic.alternativeTitles && comic.alternativeTitles.length > 0 && (
@@ -104,34 +97,35 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSo
                 </div>
               </td>
 
-              {/* Episode */}
-              <td className="px-4 py-3.5 text-center align-middle font-extrabold text-sm sm:text-base text-zinc-800 dark:text-zinc-200">
-                {comic.episode}
+              {/* Episode & Actions */}
+              <td className="px-4 py-3.5 text-center align-middle">
+                <div className="flex flex-col items-center justify-center">
+                  <span className="font-extrabold text-sm sm:text-base text-zinc-800 dark:text-zinc-200">
+                    {comic.episode}
+                  </span>
+                  
+                  {canEdit && (
+                    <div className="flex flex-col items-center gap-2 mt-2">
+                      {/* Edit Button */}
+                      <button
+                        onClick={() => onEdit(comic)}
+                        className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 dark:hover:border-emerald-500 text-zinc-500 hover:text-emerald-500 transition-all outline-none bg-white/50 dark:bg-zinc-900/40 shadow-sm"
+                        title="Edit Comic"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      {/* Delete Button */}
+                      <button
+                        onClick={() => onDelete(comic)}
+                        className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-red-500 dark:hover:border-red-500 text-zinc-500 hover:text-red-500 transition-all outline-none bg-white/50 dark:bg-zinc-900/40 shadow-sm"
+                        title="Delete Comic"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </td>
-
-              {/* Actions */}
-              {canEdit && (
-                <td className="px-4 py-3.5 align-middle text-center">
-                  <div className="flex justify-center items-center gap-1.5 sm:gap-2">
-                    {/* Edit Button */}
-                    <button
-                      onClick={() => onEdit(comic)}
-                      className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 dark:hover:border-emerald-500 text-zinc-500 hover:text-emerald-500 transition-all outline-none"
-                      title="Edit Comic"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    {/* Delete Button */}
-                    <button
-                      onClick={() => onDelete(comic)}
-                      className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-red-500 dark:hover:border-red-500 text-zinc-500 hover:text-red-500 transition-all outline-none"
-                      title="Delete Comic"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              )}
             </motion.tr>
           ))}
         </tbody>

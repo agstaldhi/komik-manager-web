@@ -99,13 +99,13 @@ export const ComicTable = ({ comics, onEdit, onDelete, canEdit, sortConfig, onSo
 
               {/* Episode & Actions */}
               <td className="px-4 py-3.5 text-center align-middle">
-                <div className="flex flex-col items-center justify-center">
+                <div className="flex items-center justify-center gap-3">
                   <span className="font-extrabold text-sm sm:text-base text-zinc-800 dark:text-zinc-200">
                     {comic.episode}
                   </span>
                   
                   {canEdit && (
-                    <div className="flex flex-col items-center gap-2 mt-2">
+                    <div className="flex flex-col gap-1.5">
                       {/* Edit Button */}
                       <button
                         onClick={() => onEdit(comic)}

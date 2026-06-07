@@ -171,7 +171,7 @@ const AppContent = () => {
       />
 
       {/* FLOATING TOP HEADER CAPSULE */}
-      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-5xl h-12 sm:h-14 z-40 rounded-full border border-border/40 dark:border-zinc-800/80 bg-background/35 dark:bg-zinc-950/40 backdrop-blur-xl px-6 sm:px-8 flex items-center justify-between shadow-xl pointer-events-auto select-none">
+      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-5xl h-12 sm:h-14 z-40 rounded-full border border-border/40 dark:border-zinc-800/80 bg-background/90 dark:bg-zinc-950/90 md:bg-background/35 md:dark:bg-zinc-950/40 backdrop-blur-xl px-6 sm:px-8 flex items-center justify-between shadow-xl pointer-events-auto select-none">
         {/* Logo Brand left side */}
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => setPage("home")}>
           <SparklesText

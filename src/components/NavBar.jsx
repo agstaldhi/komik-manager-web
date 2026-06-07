@@ -24,7 +24,7 @@ export function NavBar({ items, activeTab: propActiveTab, onTabChange, className
         className,
       )}
     >
-      <div className="flex items-center gap-1 sm:gap-1.5 bg-background/20 dark:bg-zinc-950/40 border border-border/60 dark:border-zinc-800/80 backdrop-blur-xl py-1 px-1 rounded-full shadow-xl">
+      <div className="flex items-center gap-1 sm:gap-1.5 bg-background/90 dark:bg-zinc-950/95 md:bg-background/20 md:dark:bg-zinc-950/40 border border-border/60 dark:border-zinc-800/80 backdrop-blur-xl py-1 px-1 rounded-full shadow-xl">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.url;

@@ -115,20 +115,38 @@ html.light-mode {
 
 /* Glassmorphism style helper */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(20, 20, 20, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
 }
 
 .light-mode .glass-panel {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(0, 0, 0, 0.06);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+}
+
+@media (min-width: 768px) {
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .light-mode .glass-panel {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
 }
 
 /* Animation utilities */
 .transition-bg {
   transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Disable heavy backdrop filters on mobile for buttery smooth performance */
+@media (max-width: 768px) {
+  *, ::before, ::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }

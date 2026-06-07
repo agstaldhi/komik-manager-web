@@ -10,17 +10,31 @@ const SparklesText = ({
   ...props
 }) => {
   const [sparkles, setSparkles] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) {
+      setSparkles([]);
+      return;
+    }
+
     const generateStar = () => {
       const starX = `${Math.random() * 100}%`;
       const starY = `${Math.random() * 100}%`;
       const color = Math.random() > 0.5 ? colors.first : colors.second;
       const delay = Math.random() * 2;
-      const scale = Math.random() * 1 + 0.3;
-      const lifespan = Math.random() * 10 + 5;
-      const id = `${starX}-${starY}-${Date.now()}`;
-      return { id, x: starX, y: starY, color, delay, scale, lifespan };
+      const scale = Math.random() * 0.7 + 0.3;
+      const id = `${starX}-${starY}-${Math.random()}`;
+      return { id, x: starX, y: starY, color, delay, scale };
     };
 
     const initializeStars = () => {
@@ -28,23 +42,8 @@ const SparklesText = ({
       setSparkles(newSparkles);
     };
 
-    const updateStars = () => {
-      setSparkles((currentSparkles) =>
-        currentSparkles.map((star) => {
-          if (star.lifespan <= 0) {
-            return generateStar();
-          } else {
-            return { ...star, lifespan: star.lifespan - 0.1 };
-          }
-        })
-      );
-    };
-
     initializeStars();
-    const interval = setInterval(updateStars, 100);
-
-    return () => clearInterval(interval);
-  }, [colors.first, colors.second, sparklesCount]);
+  }, [colors.first, colors.second, sparklesCount, isMobile]);
 
   return (
     <div
@@ -56,7 +55,7 @@ const SparklesText = ({
       }}
     >
       <span className="relative inline-block">
-        {sparkles.map((sparkle) => (
+        {!isMobile && sparkles.map((sparkle) => (
           <Sparkle key={sparkle.id} {...sparkle} />
         ))}
         <strong>{text}</strong>
@@ -76,7 +75,13 @@ const Sparkle = ({ id, x, y, color, delay, scale }) => {
         scale: [0, scale, 0],
         rotate: [75, 120, 150],
       }}
-      transition={{ duration: 0.8, repeat: Infinity, delay }}
+      transition={{
+        duration: 1.2,
+        repeat: Infinity,
+        repeatType: "loop",
+        delay,
+        ease: "easeInOut",
+      }}
       width="21"
       height="21"
       viewBox="0 0 21 21"

@@ -144,7 +144,9 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
     rawData.forEach((item, index) => {
       // Handle potential CSV/JSON key variants
       const title = (item.title || item.Title || "").trim();
-      const episode = parseInt(item.episode || item.Episode || item.eps || 1, 10);
+      const rawEps = item.episode ?? item.Episode ?? item.eps;
+      const parsedEps = rawEps !== undefined && rawEps !== null && rawEps !== "" ? parseInt(rawEps, 10) : 1;
+      const episode = isNaN(parsedEps) ? 1 : parsedEps;
       const link = (item.link || item.Link || item.url || "").trim();
       const isNSFW = item.isNSFW === true || item.isNSFW === "true" || item.is_nsfw === true || item.is_nsfw === "true" || item.nsfw === "true" || item.nsfw === true;
       const thumbnail = (item.thumbnail || item.Thumbnail || item.cover || "").trim();

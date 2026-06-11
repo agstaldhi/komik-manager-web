@@ -100,18 +100,25 @@ export const deleteComic = async (comicId) => {
 // Bulk upload
 export const bulkUploadComics = async (comicsArray) => {
   try {
-    const insertData = comicsArray.map((comic) => ({
-      title: (comic.title || "").trim(),
-      alternative_titles: comic.alternativeTitles || [],
-      episode: parseInt(comic.episode),
-      link: comic.link,
-      is_nsfw: comic.isNSFW || false,
-      thumbnail: comic.thumbnail || "",
-    }));
+    const upsertData = comicsArray.map((comic) => {
+      const data = {
+        title: (comic.title || "").trim(),
+        alternative_titles: comic.alternativeTitles || [],
+        episode: parseInt(comic.episode),
+        link: comic.link,
+        is_nsfw: comic.isNSFW || false,
+        thumbnail: comic.thumbnail || "",
+      };
+      if (comic.id) {
+        data.id = comic.id;
+        data.updated_at = new Date().toISOString();
+      }
+      return data;
+    });
 
     const { data, error } = await supabase
       .from("comics")
-      .insert(insertData)
+      .upsert(upsertData)
       .select();
 
     if (error) throw error;

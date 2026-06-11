@@ -127,14 +127,19 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
 
     const validComics = [];
     let duplicateCount = 0;
-    
-    // Populate the set with all title variants (main and alt) from the database
-    const dbTitles = new Set();
-    const dbLinks = new Set();
-    comics.forEach(c => {
-      getTitlesList(c).forEach(t => dbTitles.add(t));
-      if (c.link) dbLinks.add(c.link.trim().toLowerCase());
-    });
+    let newCount = 0;
+    let updateCount = 0;
+
+    // Sets to track duplicates within the imported file itself (session)
+    const importedTitlesInSession = new Set();
+    const importedLinksInSession = new Set();
+
+    // Helper: detect if a thumbnail URL is empty or invalid (not starting with http:// or https://)
+    const isThumbnailBrokenOrEmpty = (url) => {
+      if (!url || url.trim() === "") return true;
+      const u = url.trim().toLowerCase();
+      return !u.startsWith("http://") && !u.startsWith("https://");
+    };
 
     rawData.forEach((item, index) => {
       // Handle potential CSV/JSON key variants
@@ -159,24 +164,91 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
         alternativeTitles = altVal.split(";").map(t => t.trim()).filter(Boolean);
       }
 
-      // Check all parsed title variations against the registered titles set
-      const tempComic = { title, alternativeTitles };
-      const newTitlesList = getTitlesList(tempComic);
-      const isDuplicateTitleVal = newTitlesList.some(t => dbTitles.has(t));
-
       const cleanLink = link.trim().toLowerCase();
-      const isDuplicateLinkVal = dbLinks.has(cleanLink);
+      const itemTitlesLower = [title, ...alternativeTitles].map(t => t.trim().toLowerCase()).filter(Boolean);
 
-      if (isDuplicateTitleVal) {
+      // 1. Check for duplicates within the current import file (session duplicates)
+      const isSessionDuplicateTitle = itemTitlesLower.some(t => importedTitlesInSession.has(t));
+      const isSessionDuplicateLink = cleanLink && importedLinksInSession.has(cleanLink);
+
+      if (isSessionDuplicateTitle || isSessionDuplicateLink) {
         duplicateCount++;
-        addLog("warning", `Duplicate title detected: "${title}" is already in database or import file. Skipped.`);
-      } else if (isDuplicateLinkVal) {
-        duplicateCount++;
-        addLog("warning", `Duplicate link detected: "${link}" is already in database or import file. Skipped.`);
+        addLog("warning", `Row #${index + 2}: Skipped. Duplicate entry within the uploaded file itself.`);
+        return;
+      }
+
+      // 2. Find if this comic matches any existing comic in the database
+      const matchedComic = comics.find(c => {
+        // Check title overlap
+        const existingTitles = getTitlesList(c);
+        const hasTitleOverlap = itemTitlesLower.some(t => existingTitles.includes(t));
+        if (hasTitleOverlap) return true;
+
+        // Check link match
+        if (cleanLink && c.link && c.link.trim().toLowerCase() === cleanLink) {
+          return true;
+        }
+        return false;
+      });
+
+      if (matchedComic) {
+        // Match found! Check if we need to update thumbnail or alternative titles
+        let needsUpdate = false;
+        const updateLogMsg = [];
+        const updatedFields = {
+          id: matchedComic.id,
+          title: matchedComic.title, // Keep DB title
+          episode: matchedComic.episode, // Keep DB episode
+          link: matchedComic.link, // Keep DB link
+          isNSFW: matchedComic.isNSFW, // Keep DB isNSFW
+          thumbnail: matchedComic.thumbnail || "", // Start with DB thumbnail
+          alternativeTitles: matchedComic.alternativeTitles || [] // Start with DB alt titles
+        };
+
+        // Check thumbnail update
+        if (isThumbnailBrokenOrEmpty(matchedComic.thumbnail) && !isThumbnailBrokenOrEmpty(thumbnail)) {
+          updatedFields.thumbnail = thumbnail;
+          needsUpdate = true;
+          updateLogMsg.push("thumbnail updated");
+        }
+
+        // Check alternative titles merge
+        const existingTitlesLower = getTitlesList(matchedComic);
+        const newAlternativeTitlesToAdd = [];
+        
+        // Candidates from import: main title and all imported alternative titles
+        const importedTitleCandidates = [title, ...alternativeTitles].map(t => t.trim()).filter(Boolean);
+        importedTitleCandidates.forEach(cand => {
+          if (!existingTitlesLower.includes(cand.toLowerCase())) {
+            newAlternativeTitlesToAdd.push(cand);
+          }
+        });
+
+        if (newAlternativeTitlesToAdd.length > 0) {
+          updatedFields.alternativeTitles = [
+            ...(matchedComic.alternativeTitles || []),
+            ...newAlternativeTitlesToAdd
+          ];
+          needsUpdate = true;
+          updateLogMsg.push(`added alternative titles: ${newAlternativeTitlesToAdd.join(", ")}`);
+        }
+
+        if (needsUpdate) {
+          updateCount++;
+          validComics.push(updatedFields);
+          addLog("info", `Row #${index + 2}: Update scheduled for "${matchedComic.title}" (${updateLogMsg.join("; ")}).`);
+        } else {
+          duplicateCount++;
+          addLog("warning", `Duplicate title/link: "${title}" already exists in database with no new updates. Skipped.`);
+        }
+
+        // Mark as processed in session to prevent duplicate processing if listed again
+        itemTitlesLower.forEach(t => importedTitlesInSession.add(t));
+        if (cleanLink) importedLinksInSession.add(cleanLink);
+
       } else {
-        // Add new titles & link to the set to prevent duplicates in the same file
-        newTitlesList.forEach(t => dbTitles.add(t));
-        if (cleanLink) dbLinks.add(cleanLink);
+        // No match found: insert as new comic
+        newCount++;
         validComics.push({
           title,
           alternativeTitles,
@@ -185,21 +257,25 @@ export const Settings = ({ comics, bulkUpload, showNotification }) => {
           isNSFW,
           thumbnail
         });
+
+        // Mark as processed in session
+        itemTitlesLower.forEach(t => importedTitlesInSession.add(t));
+        if (cleanLink) importedLinksInSession.add(cleanLink);
       }
     });
 
     if (validComics.length === 0) {
-      addLog("warning", `Import process stopped: 0 new comics out of ${rawData.length} rows. All were skipped/duplicates.`);
-      showNotification("Tidak ada komik baru yang diimport (semua duplikat/invalid)!", "error");
+      addLog("warning", `Import process stopped: 0 new/updated comics out of ${rawData.length} rows. All were skipped/duplicates.`);
+      showNotification("Tidak ada komik baru atau perubahan data yang diimport!", "error");
       return;
     }
 
-    addLog("info", `Uploading ${validComics.length} new comics to database...`);
+    addLog("info", `Syncing ${validComics.length} comics to database (${newCount} new, ${updateCount} updates)...`);
     const result = await bulkUpload(validComics);
 
     if (result.success) {
-      addLog("success", `Successfully imported ${validComics.length} comics into Supabase database.`);
-      showNotification(result.message, "success");
+      addLog("success", `Import selesai. Berhasil menambahkan ${newCount} komik baru dan memperbarui ${updateCount} komik lama.`);
+      showNotification(`Berhasil memproses ${validComics.length} data komik!`, "success");
     } else {
       addLog("error", `Failed to save imported comics: ${result.message}`);
       showNotification("Gagal import data!", "error");

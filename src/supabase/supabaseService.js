@@ -100,7 +100,10 @@ export const deleteComic = async (comicId) => {
 // Bulk upload
 export const bulkUploadComics = async (comicsArray) => {
   try {
-    const upsertData = comicsArray.map((comic) => {
+    const toInsert = [];
+    const toUpdate = [];
+
+    comicsArray.forEach((comic) => {
       const data = {
         title: (comic.title || "").trim(),
         alternative_titles: comic.alternativeTitles || [],
@@ -112,17 +115,34 @@ export const bulkUploadComics = async (comicsArray) => {
       if (comic.id) {
         data.id = comic.id;
         data.updated_at = new Date().toISOString();
+        toUpdate.push(data);
+      } else {
+        toInsert.push(data);
       }
-      return data;
     });
 
-    const { data, error } = await supabase
-      .from("comics")
-      .upsert(upsertData)
-      .select();
+    let insertedCount = 0;
+    let updatedCount = 0;
 
-    if (error) throw error;
-    return data.length;
+    if (toInsert.length > 0) {
+      const { data: insertRes, error: insertError } = await supabase
+        .from("comics")
+        .insert(toInsert)
+        .select();
+      if (insertError) throw insertError;
+      insertedCount = insertRes.length;
+    }
+
+    if (toUpdate.length > 0) {
+      const { data: updateRes, error: updateError } = await supabase
+        .from("comics")
+        .upsert(toUpdate)
+        .select();
+      if (updateError) throw updateError;
+      updatedCount = updateRes.length;
+    }
+
+    return insertedCount + updatedCount;
   } catch (error) {
     console.error("Error bulk uploading comics:", error);
     throw error;

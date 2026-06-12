@@ -18,13 +18,30 @@ const mapSupabaseToFrontend = (item) => {
 // Get all comics from Supabase
 export const getAllComics = async () => {
   try {
-    const { data, error } = await supabase
-      .from("comics")
-      .select("*")
-      .order("title", { ascending: true });
+    let allData = [];
+    let from = 0;
+    const limit = 1000;
+    let hasMore = true;
 
-    if (error) throw error;
-    return (data || []).map(mapSupabaseToFrontend);
+    while (hasMore) {
+      const { data, error } = await supabase
+        .from("comics")
+        .select("*")
+        .order("title", { ascending: true })
+        .range(from, from + limit - 1);
+
+      if (error) throw error;
+
+      allData = [...allData, ...(data || [])];
+
+      if (!data || data.length < limit) {
+        hasMore = false;
+      } else {
+        from += limit;
+      }
+    }
+
+    return allData.map(mapSupabaseToFrontend);
   } catch (error) {
     console.error("Error getting all comics from Supabase:", error);
     throw error;

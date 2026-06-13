@@ -165,7 +165,7 @@ const CHARACTERS = [
   }
 ];
 
-export const Home = ({ comics, onNavigate }) => {
+export const Home = ({ comics, loading, onNavigate }) => {
   const { darkMode } = useTheme();
   const { showNSFW } = useAuth();
   const [activeCharIndex, setActiveCharIndex] = useState(0);
@@ -342,7 +342,21 @@ export const Home = ({ comics, onNavigate }) => {
           </div>
 
           <div className="space-y-3">
-            {recentComics.length > 0 ? (
+            {loading ? (
+              Array.from({ length: 4 }).map((_, idx) => (
+                <div
+                  key={`recent-skeleton-${idx}`}
+                  className="p-3 rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-white/40 dark:bg-black/30 backdrop-blur-sm flex gap-4 items-center animate-pulse select-none"
+                >
+                  <div className="w-12 h-16 rounded-xl bg-zinc-200 dark:bg-zinc-800 flex-shrink-0" />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-2/3" />
+                    <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-1/4" />
+                    <div className="h-3.5 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3" />
+                  </div>
+                </div>
+              ))
+            ) : recentComics.length > 0 ? (
               recentComics.map((comic) => (
                 <a
                   key={comic.id}
@@ -454,7 +468,11 @@ export const Home = ({ comics, onNavigate }) => {
                   Total Comics
                 </div>
                 <div className="text-3xl font-black text-zinc-800 dark:text-zinc-100 mt-1">
-                  {stats.total}
+                  {loading ? (
+                    <div className="h-9 bg-zinc-200 dark:bg-zinc-800 rounded w-16 animate-pulse mt-1" />
+                  ) : (
+                    stats.total
+                  )}
                 </div>
               </div>
 
@@ -465,7 +483,11 @@ export const Home = ({ comics, onNavigate }) => {
                   <span>Normal</span>
                 </div>
                 <div className="text-3xl font-black text-zinc-800 dark:text-zinc-100 mt-1">
-                  {stats.normalCount}
+                  {loading ? (
+                    <div className="h-9 bg-zinc-200 dark:bg-zinc-800 rounded w-12 animate-pulse mt-1" />
+                  ) : (
+                    stats.normalCount
+                  )}
                 </div>
               </div>
 
@@ -476,7 +498,13 @@ export const Home = ({ comics, onNavigate }) => {
                   <span>NSFW (18+)</span>
                 </div>
                 <div className="text-3xl font-black text-zinc-800 dark:text-zinc-100 mt-1">
-                  {showNSFW ? stats.nsfwCount : "Hidden"}
+                  {loading ? (
+                    <div className="h-9 bg-zinc-200 dark:bg-zinc-800 rounded w-12 animate-pulse mt-1" />
+                  ) : showNSFW ? (
+                    stats.nsfwCount
+                  ) : (
+                    "Hidden"
+                  )}
                 </div>
               </div>
 
@@ -487,7 +515,11 @@ export const Home = ({ comics, onNavigate }) => {
                   <span>New Weekly</span>
                 </div>
                 <div className="text-3xl font-black text-emerald-500 mt-1">
-                  +{stats.addedWeek}
+                  {loading ? (
+                    <div className="h-9 bg-zinc-200 dark:bg-zinc-800 rounded w-12 animate-pulse mt-1" />
+                  ) : (
+                    `+${stats.addedWeek}`
+                  )}
                 </div>
               </div>
 
@@ -498,7 +530,11 @@ export const Home = ({ comics, onNavigate }) => {
                     New Added (Last 30 Days)
                   </div>
                   <div className="text-2xl font-black text-zinc-800 dark:text-zinc-100 mt-0.5">
-                    +{stats.addedMonth} comics
+                    {loading ? (
+                      <div className="h-7 bg-zinc-200 dark:bg-zinc-800 rounded w-24 animate-pulse mt-0.5" />
+                    ) : (
+                      `+${stats.addedMonth} comics`
+                    )}
                   </div>
                 </div>
                 <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500">

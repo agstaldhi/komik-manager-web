@@ -8,6 +8,7 @@ import { AddEdit } from "./AddEdit";
 
 export const List = ({
   comics,
+  loading,
   onSaveComic,
   onDelete,
   canEdit,
@@ -229,10 +230,11 @@ export const List = ({
 
       {/* Comics Table Container */}
       <div className="p-4 rounded-[2rem] border border-zinc-100 dark:border-zinc-900 bg-white/40 dark:bg-black/30 backdrop-blur-md">
-        {filteredComics.length > 0 ? (
+        {filteredComics.length > 0 || loading ? (
           <>
             <ComicTable
               comics={paginatedComics}
+              loading={loading}
               onEdit={handleOpenEditModal}
               onDelete={onDelete}
               canEdit={canEdit}
@@ -241,7 +243,7 @@ export const List = ({
             />
 
             {/* Pagination Controls */}
-            {totalPages > 1 && (
+            {!loading && totalPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-950 gap-4">
                 <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
                   Page {currentPage} of {totalPages}

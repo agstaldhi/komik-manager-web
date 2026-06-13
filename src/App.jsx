@@ -142,7 +142,7 @@ const AppContent = () => {
   return (
     <AuroraBackground className="flex-col w-full text-zinc-900 dark:text-zinc-50">
       {/* Loading Overlay */}
-      {loading && (
+      {loading && comics.length > 0 && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[100] transition-all">
           <div className="p-8 rounded-3xl border border-zinc-800 bg-black/80 flex flex-col items-center shadow-2xl">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent mb-4"></div>
@@ -281,6 +281,7 @@ const AppContent = () => {
             <Home 
               key="home" 
               comics={comics} 
+              loading={loading}
               onNavigate={handlePageChange}
             />
           )}
@@ -289,6 +290,7 @@ const AppContent = () => {
             <List
               key="list"
               comics={comics}
+              loading={loading}
               onSaveComic={handleSave}
               onDelete={setShowDeleteModal}
               canEdit={canEdit}
